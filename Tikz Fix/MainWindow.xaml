@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tikz_Fix"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Tikz Fix" Height="450" Width="800">
     <Grid>
         <Canvas x:Name="Surface" Background="White" MouseLeftButtonDown="Surface_MouseLeftButtonDown"></Canvas>
         <TextBlock x:Name="TikzCode" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
