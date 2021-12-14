@@ -23,6 +23,11 @@ namespace Tikz_Fix
         //private List<Point> points = new List<Point>();
         Point oldPoint = new Point();
         int index = 0;
+        private enum Shapes
+        {
+            Line, Rectangle
+        }
+        private Shapes currShape;
         public MainWindow()
         {
             InitializeComponent();
@@ -32,38 +37,74 @@ namespace Tikz_Fix
         {
             if (e.ButtonState == MouseButtonState.Pressed)
             {
-                Ellipse ellipse = new Ellipse();
-
-                ellipse.Stroke = Brushes.Black;
-                ellipse.Width = 5;
-                ellipse.Height = 5;
-                ellipse.Fill = Brushes.Black;
-                double left = e.GetPosition(this).X - (ellipse.Width / 2);
-                double top = e.GetPosition(this).Y - (ellipse.Height / 2);
-
-                ellipse.Margin = new Thickness(left, top, 0, 0);
-                Surface.Children.Add(ellipse);
-
-                if (index >= 1)
+                switch(currShape)
                 {
-                    Line line = new Line();
+                    case Shapes.Line:
+                        drawLine(e);
+                        break;
 
-                    line.Stroke = Brushes.Black;
-                    line.X1 = oldPoint.X;
-                    line.Y1 = oldPoint.Y;
-                    line.X2 = e.GetPosition(this).X;
-                    line.Y2 = e.GetPosition(this).Y;
-
-                    Surface.Children.Add(line);
-                    index = -1;
-
-                    TikzCode.Text = "Line (" + line.X1 + "," + line.Y1 + ") , (" + line.X2 + "," + line.Y2 + ")";
-
+                    case Shapes.Rectangle:
+                        break;
                 }
-                oldPoint = e.GetPosition(this);
-                index++;
+                
             }
                 
         }
+
+        private void LineButton_Click(object sender, RoutedEventArgs e)
+        {
+            currShape = Shapes.Line;
+        }
+
+        private void RectangleButton_Click(object sender, RoutedEventArgs e)
+        {
+            currShape = Shapes.Rectangle;
+        }
+
+
+        private void drawLine(MouseButtonEventArgs e) 
+        {
+            Ellipse ellipse = new Ellipse();
+
+            ellipse.Stroke = Brushes.Black;
+            ellipse.Width = 5;
+            ellipse.Height = 5;
+            ellipse.Fill = Brushes.Black;
+            double left = e.GetPosition(Surface).X - (ellipse.Width / 2);
+            double top = e.GetPosition(Surface).Y - (ellipse.Height / 2);
+
+            ellipse.Margin = new Thickness(left, top, 0, 0);
+            Surface.Children.Add(ellipse);
+            
+
+            if (index >= 1)
+            {
+                Line line = new Line();
+
+                line.Stroke = Brushes.Black;
+                line.X1 = oldPoint.X;
+                line.Y1 = oldPoint.Y;
+                line.X2 = e.GetPosition(Surface).X;
+                line.Y2 = e.GetPosition(Surface).Y;
+
+                Surface.Children.Add(line);
+                index = -1;
+
+                updateTikzCode(line);
+
+            }
+            oldPoint = e.GetPosition(Surface);
+            index++;
+        }
+        private void drawRectangle() 
+        { 
+            
+        }
+
+        private void updateTikzCode(Line line)
+        {
+            TikzCode.Items.Add("Line (" + line.X1 + "," + line.Y1 + ") , (" + line.X2 + "," + line.Y2 + ")");
+        }
+
     }
 }

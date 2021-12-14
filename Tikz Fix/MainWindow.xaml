@@ -5,9 +5,43 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tikz_Fix"
         mc:Ignorable="d"
-        Title="Tikz Fix" Height="450" Width="800">
+        Title="Tikz Fix" Height="600" Width="1000">
     <Grid>
-        <Canvas x:Name="Surface" Background="White" MouseLeftButtonDown="Surface_MouseLeftButtonDown"></Canvas>
-        <TextBlock x:Name="TikzCode" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Border Grid.Column="0"
+                Grid.Row="0"
+                Grid.ColumnSpan="2"
+                BorderBrush="Black" 
+                BorderThickness="1,1,1,1" Background="Transparent"/>
+        <Border Grid.Column="0"
+                Grid.Row="1"
+                BorderBrush="Black" 
+                BorderThickness="1,0,1,1" Background="Transparent"/>
+        <Border Grid.Column="1"
+                Grid.Row="1"
+                BorderBrush="Black" 
+                BorderThickness="0,0,1,1" Background="Transparent"/>
+        <StackPanel Grid.Column="0"
+                    Grid.Row ="0" 
+                    Orientation="Horizontal">
+            <RadioButton Name="LineButton" GroupName="Shapes" Content="Line" IsChecked="True" Click="LineButton_Click"/>
+            <RadioButton Name="RectangleButton" GroupName="Shapes" Content="Rectangle" Click="RectangleButton_Click"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1"
+                    Grid.Row ="0" 
+                    Orientation="Horizontal">
+            <RadioButton Name="BlackButton" GroupName="Colors" Content="Black" IsChecked="True"/>
+            <RadioButton Name="BlueButton" GroupName="Colors" Content="Blue"/>
+        </StackPanel>
+        <Canvas x:Name="Surface" Grid.Row="1" Grid.Column="0"  Background="Transparent" MouseLeftButtonDown="Surface_MouseLeftButtonDown"></Canvas>
+        <ListView x:Name="TikzCode" Grid.Row="1" Grid.Column="1"/>
     </Grid>
 </Window>
+
