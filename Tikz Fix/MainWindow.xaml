@@ -37,8 +37,9 @@
         <StackPanel Grid.Column="1"
                     Grid.Row ="0" 
                     Orientation="Horizontal">
-            <RadioButton Name="BlackButton" GroupName="Colors" Content="Black" IsChecked="True"/>
-            <RadioButton Name="BlueButton" GroupName="Colors" Content="Blue"/>
+            <RadioButton Name="BlackButton" GroupName="Colors" Content="Black" IsChecked="True" Click="BlackButton_Click"/>
+            <RadioButton Name="BlueButton" GroupName="Colors" Content="Blue" Click="BlueButton_Click"/>
+            <RadioButton Name="RedButton" GroupName="Colors" Content="Red" Click="RedButton_Click"/>
         </StackPanel>
         <Canvas x:Name="Surface" Grid.Row="1" Grid.Column="0"  Background="Transparent" MouseLeftButtonDown="Surface_MouseLeftButtonDown"></Canvas>
         <ListView x:Name="TikzCode" Grid.Row="1" Grid.Column="1"/>

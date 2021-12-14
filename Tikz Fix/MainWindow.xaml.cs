@@ -28,6 +28,7 @@ namespace Tikz_Fix
             Line, Rectangle
         }
         private Shapes currShape;
+        private Brush brushColor = Brushes.Black;
         public MainWindow()
         {
             InitializeComponent();
@@ -66,10 +67,10 @@ namespace Tikz_Fix
         {
             Ellipse ellipse = new Ellipse();
 
-            ellipse.Stroke = Brushes.Black;
+            ellipse.Stroke = brushColor;
             ellipse.Width = 5;
             ellipse.Height = 5;
-            ellipse.Fill = Brushes.Black;
+            ellipse.Fill = brushColor;
             double left = e.GetPosition(Surface).X - (ellipse.Width / 2);
             double top = e.GetPosition(Surface).Y - (ellipse.Height / 2);
 
@@ -81,7 +82,7 @@ namespace Tikz_Fix
             {
                 Line line = new Line();
 
-                line.Stroke = Brushes.Black;
+                line.Stroke = brushColor;
                 line.X1 = oldPoint.X;
                 line.Y1 = oldPoint.Y;
                 line.X2 = e.GetPosition(Surface).X;
@@ -106,5 +107,18 @@ namespace Tikz_Fix
             TikzCode.Items.Add("Line (" + line.X1 + "," + line.Y1 + ") , (" + line.X2 + "," + line.Y2 + ")");
         }
 
+        private void BlackButton_Click(object sender, RoutedEventArgs e)
+        {
+            brushColor = Brushes.Black;
+        }
+
+        private void BlueButton_Click(object sender, RoutedEventArgs e)
+        {
+            brushColor = Brushes.Blue;
+        }
+        private void RedButton_Click(object sender, RoutedEventArgs e)
+        {
+            brushColor = Brushes.Red;
+        }
     }
 }
