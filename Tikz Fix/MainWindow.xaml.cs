@@ -21,6 +21,7 @@ namespace Tikz_Fix
     public partial class MainWindow : Window
     {
         //private List<Point> points = new List<Point>();
+        Ellipse temporaryPoint = new Ellipse();
         Point oldPoint = new Point();
         int index = 0;
         private enum Shapes
@@ -53,6 +54,11 @@ namespace Tikz_Fix
                 
         }
 
+        private void Surface_MouseMove(object sender, MouseEventArgs e)
+        {
+            Coordinates.Text = "(" + e.GetPosition(Surface).X + "," + e.GetPosition(Surface).Y + ")";
+        }
+
         private void LineButton_Click(object sender, RoutedEventArgs e)
         {
             currShape = Shapes.Line;
@@ -77,10 +83,11 @@ namespace Tikz_Fix
 
             ellipse.Margin = new Thickness(left, top, 0, 0);
             Surface.Children.Add(ellipse);
-            
 
             if (index >= 1)
             {
+                Surface.Children.Remove(temporaryPoint);
+                Surface.Children.Remove(ellipse);
                 Line line = new Line();
 
                 line.Stroke = brushColor;
@@ -95,6 +102,7 @@ namespace Tikz_Fix
                 updateTikzCode(e.GetPosition(Surface));
 
             }
+            temporaryPoint = ellipse;
             oldPoint = e.GetPosition(Surface);
             index++;
         }
@@ -116,6 +124,8 @@ namespace Tikz_Fix
 
             if (index >= 1)
             {
+                Surface.Children.Remove(temporaryPoint);
+                Surface.Children.Remove(ellipse);
                 Rectangle rectangle = new Rectangle();
 
                 rectangle.Stroke = brushColor;
@@ -129,6 +139,7 @@ namespace Tikz_Fix
                 updateTikzCode(e.GetPosition(Surface));
 
             }
+            temporaryPoint = ellipse;
             oldPoint = e.GetPosition(Surface);
             index++;
         }
@@ -160,5 +171,6 @@ namespace Tikz_Fix
         {
             brushColor = Brushes.Red;
         }
+
     }
 }

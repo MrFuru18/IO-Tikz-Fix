@@ -41,7 +41,8 @@
             <RadioButton Name="BlueButton" GroupName="Colors" Content="Blue" Click="BlueButton_Click"/>
             <RadioButton Name="RedButton" GroupName="Colors" Content="Red" Click="RedButton_Click"/>
         </StackPanel>
-        <Canvas x:Name="Surface" Grid.Row="1" Grid.Column="0"  Background="Transparent" MouseLeftButtonDown="Surface_MouseLeftButtonDown"></Canvas>
+        <Canvas x:Name="Surface" Grid.Row="1" Grid.Column="0"  Background="Transparent" MouseLeftButtonDown="Surface_MouseLeftButtonDown" MouseMove="Surface_MouseMove"></Canvas>
+        <TextBlock x:Name="Coordinates" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
         <ListView x:Name="TikzCode" Grid.Row="1" Grid.Column="1"/>
     </Grid>
 </Window>
