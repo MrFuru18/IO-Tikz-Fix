@@ -20,12 +20,14 @@ namespace Tikz_Fix
     /// </summary>
     public partial class MainWindow : Window
     {
-        //private List<Point> points = new List<Point>();
+        Ellipse temporaryPoint = new Ellipse();
+        Line temporaryLine = new Line();
+        Rectangle temporaryRectangle = new Rectangle();
+        Ellipse temporaryEllipse = new Ellipse();
         Point oldPoint = new Point();
-        int index = 0;
         private enum Shapes
         {
-            Line, Rectangle
+            Line, Rectangle, Ellipse
         }
         private Shapes currShape;
         private Brush brushColor = Brushes.Black;
@@ -38,18 +40,78 @@ namespace Tikz_Fix
         {
             if (e.ButtonState == MouseButtonState.Pressed)
             {
-                switch(currShape)
-                {
-                    case Shapes.Line:
-                        drawLine(e);
-                        break;
-
-                    case Shapes.Rectangle:
-                        break;
-                }
-                
+                temporaryLine.Stroke = Brushes.Gray;
+                temporaryRectangle.Stroke = Brushes.Gray;
+                temporaryEllipse.Stroke = Brushes.Gray;
+                temporaryLine.X1 = e.GetPosition(Surface).X;
+                temporaryLine.Y1 = e.GetPosition(Surface).Y;
+                temporaryLine.X2 = e.GetPosition(Surface).X;
+                temporaryLine.Y2 = e.GetPosition(Surface).Y;
+                temporaryRectangle.Width = 0;
+                temporaryRectangle.Height = 0;
+                temporaryEllipse.Width = 0;
+                temporaryEllipse.Height = 0;
+                oldPoint = e.GetPosition(Surface);
             }
                 
+        }
+
+        private void Surface_MouseMove(object sender, MouseEventArgs e)
+        {
+            switch (currShape)
+            {
+                case Shapes.Line:
+                    Surface.Children.Remove(temporaryLine);
+
+                    temporaryLine.X2 = e.GetPosition(Surface).X;
+                    temporaryLine.Y2 = e.GetPosition(Surface).Y;
+
+                    Surface.Children.Add(temporaryLine);
+                    break;
+
+                case Shapes.Rectangle:
+                    Surface.Children.Remove(temporaryRectangle);
+
+                    temporaryRectangle.Width = Math.Abs(oldPoint.X - e.GetPosition(Surface).X);
+                    temporaryRectangle.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
+                    temporaryRectangle.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
+
+                    Surface.Children.Add(temporaryRectangle);
+                    break;
+
+                case Shapes.Ellipse:
+                    Surface.Children.Remove(temporaryEllipse);
+
+                    temporaryEllipse.Width = Math.Abs(oldPoint.X - e.GetPosition(Surface).X);
+                    temporaryEllipse.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
+                    temporaryEllipse.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
+
+                    Surface.Children.Add(temporaryEllipse);
+                    break;
+            }
+            Coordinates.Text = "(" + e.GetPosition(Surface).X + "," + e.GetPosition(Surface).Y + ")";
+        }
+
+        private void Surface_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            temporaryLine.Stroke = Brushes.Transparent;
+            temporaryRectangle.Stroke = Brushes.Transparent;
+            temporaryEllipse.Stroke = Brushes.Transparent;
+            switch (currShape)
+            {
+                case Shapes.Line:
+                    drawLine(e);
+                    break;
+
+                case Shapes.Rectangle:
+                    drawRectangle(e);
+                    break;
+
+                case Shapes.Ellipse:
+                    drawEllipse(e);
+                    break;
+            }
+            updateTikzCode(e.GetPosition(Surface));
         }
 
         private void LineButton_Click(object sender, RoutedEventArgs e)
@@ -65,46 +127,57 @@ namespace Tikz_Fix
 
         private void drawLine(MouseButtonEventArgs e) 
         {
+            Line line = new Line();
+
+            line.Stroke = brushColor;
+            line.X1 = oldPoint.X;
+            line.Y1 = oldPoint.Y;
+            line.X2 = e.GetPosition(Surface).X;
+            line.Y2 = e.GetPosition(Surface).Y;
+
+            Surface.Children.Add(line);   
+        }
+
+        private void drawRectangle(MouseButtonEventArgs e) 
+        {
+             Rectangle rectangle = new Rectangle();
+
+            rectangle.Stroke = brushColor;
+            rectangle.Width = Math.Abs(oldPoint.X-e.GetPosition(Surface).X);
+            rectangle.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
+            rectangle.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
+
+            Surface.Children.Add(rectangle);
+        }
+
+        private void drawEllipse(MouseButtonEventArgs e)
+        {
             Ellipse ellipse = new Ellipse();
 
             ellipse.Stroke = brushColor;
-            ellipse.Width = 5;
-            ellipse.Height = 5;
-            ellipse.Fill = brushColor;
-            double left = e.GetPosition(Surface).X - (ellipse.Width / 2);
-            double top = e.GetPosition(Surface).Y - (ellipse.Height / 2);
+            ellipse.Width = Math.Abs(oldPoint.X - e.GetPosition(Surface).X);
+            ellipse.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
+            ellipse.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
 
-            ellipse.Margin = new Thickness(left, top, 0, 0);
             Surface.Children.Add(ellipse);
-            
-
-            if (index >= 1)
-            {
-                Line line = new Line();
-
-                line.Stroke = brushColor;
-                line.X1 = oldPoint.X;
-                line.Y1 = oldPoint.Y;
-                line.X2 = e.GetPosition(Surface).X;
-                line.Y2 = e.GetPosition(Surface).Y;
-
-                Surface.Children.Add(line);
-                index = -1;
-
-                updateTikzCode(line);
-
-            }
-            oldPoint = e.GetPosition(Surface);
-            index++;
-        }
-        private void drawRectangle() 
-        { 
-            
         }
 
-        private void updateTikzCode(Line line)
+        private void updateTikzCode(Point p)
         {
-            TikzCode.Items.Add("Line (" + line.X1 + "," + line.Y1 + ") , (" + line.X2 + "," + line.Y2 + ")");
+            switch (currShape)
+            {
+                case Shapes.Line:
+                    TikzCode.Items.Add("Line (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    break;
+
+                case Shapes.Rectangle:
+                    TikzCode.Items.Add("Rectangle (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    break;
+
+                case Shapes.Ellipse:
+                    TikzCode.Items.Add("Ellipse (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    break;
+            }
         }
 
         private void BlackButton_Click(object sender, RoutedEventArgs e)
@@ -120,5 +193,6 @@ namespace Tikz_Fix
         {
             brushColor = Brushes.Red;
         }
+
     }
 }
