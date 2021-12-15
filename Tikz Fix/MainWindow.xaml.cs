@@ -45,6 +45,7 @@ namespace Tikz_Fix
                         break;
 
                     case Shapes.Rectangle:
+                        drawRectangle(e);
                         break;
                 }
                 
@@ -91,20 +92,59 @@ namespace Tikz_Fix
                 Surface.Children.Add(line);
                 index = -1;
 
-                updateTikzCode(line);
+                updateTikzCode(e.GetPosition(Surface));
 
             }
             oldPoint = e.GetPosition(Surface);
             index++;
         }
-        private void drawRectangle() 
-        { 
-            
+
+        private void drawRectangle(MouseButtonEventArgs e) 
+        {
+            Ellipse ellipse = new Ellipse();
+
+            ellipse.Stroke = brushColor;
+            ellipse.Width = 5;
+            ellipse.Height = 5;
+            ellipse.Fill = brushColor;
+            double left = e.GetPosition(Surface).X - (ellipse.Width / 2);
+            double top = e.GetPosition(Surface).Y - (ellipse.Height / 2);
+
+            ellipse.Margin = new Thickness(left, top, 0, 0);
+            Surface.Children.Add(ellipse);
+
+
+            if (index >= 1)
+            {
+                Rectangle rectangle = new Rectangle();
+
+                rectangle.Stroke = brushColor;
+                rectangle.Width = Math.Abs(oldPoint.X-e.GetPosition(Surface).X);
+                rectangle.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y); ;
+                rectangle.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
+
+                Surface.Children.Add(rectangle);
+                index = -1;
+
+                updateTikzCode(e.GetPosition(Surface));
+
+            }
+            oldPoint = e.GetPosition(Surface);
+            index++;
         }
 
-        private void updateTikzCode(Line line)
+        private void updateTikzCode(Point p)
         {
-            TikzCode.Items.Add("Line (" + line.X1 + "," + line.Y1 + ") , (" + line.X2 + "," + line.Y2 + ")");
+            switch (currShape)
+            {
+                case Shapes.Line:
+                    TikzCode.Items.Add("Line (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    break;
+
+                case Shapes.Rectangle:
+                    TikzCode.Items.Add("Rectangle (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    break;
+            }
         }
 
         private void BlackButton_Click(object sender, RoutedEventArgs e)
