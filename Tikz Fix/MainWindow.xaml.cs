@@ -167,15 +167,15 @@ namespace Tikz_Fix
             switch (currShape)
             {
                 case Shapes.Line:
-                    TikzCode.Items.Add("Line (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    TikzCode.Items.Add("(" + oldPoint.X + ",-" + oldPoint.Y + ") -- (" + p.X + ",-" + p.Y + ")");
                     break;
 
                 case Shapes.Rectangle:
-                    TikzCode.Items.Add("Rectangle (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    TikzCode.Items.Add("(" + oldPoint.X + ",-" + oldPoint.Y + ") rectangle (" + p.X + ",-" + p.Y + ")");
                     break;
 
                 case Shapes.Ellipse:
-                    TikzCode.Items.Add("Ellipse (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    TikzCode.Items.Add("(" + Math.Round((oldPoint.X + p.X)/2) + ",-" + Math.Round((oldPoint.Y + p.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(oldPoint.X - p.X)/2) + " and " + Math.Round(Math.Abs(oldPoint.Y - p.Y)/2) + ")");
                     break;
             }
         }
