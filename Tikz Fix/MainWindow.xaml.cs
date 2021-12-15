@@ -20,7 +20,6 @@ namespace Tikz_Fix
     /// </summary>
     public partial class MainWindow : Window
     {
-        //private List<Point> points = new List<Point>();
         Ellipse temporaryPoint = new Ellipse();
         Point oldPoint = new Point();
         int index = 0;
@@ -62,11 +61,15 @@ namespace Tikz_Fix
         private void LineButton_Click(object sender, RoutedEventArgs e)
         {
             currShape = Shapes.Line;
+            index = 0;
+            Surface.Children.Remove(temporaryPoint);
         }
 
         private void RectangleButton_Click(object sender, RoutedEventArgs e)
         {
             currShape = Shapes.Rectangle;
+            index = 0;
+            Surface.Children.Remove(temporaryPoint);
         }
 
 
@@ -74,10 +77,10 @@ namespace Tikz_Fix
         {
             Ellipse ellipse = new Ellipse();
 
-            ellipse.Stroke = brushColor;
+            ellipse.Stroke = Brushes.Gray;
             ellipse.Width = 5;
             ellipse.Height = 5;
-            ellipse.Fill = brushColor;
+            ellipse.Fill = Brushes.LightGray;
             double left = e.GetPosition(Surface).X - (ellipse.Width / 2);
             double top = e.GetPosition(Surface).Y - (ellipse.Height / 2);
 
@@ -111,10 +114,10 @@ namespace Tikz_Fix
         {
             Ellipse ellipse = new Ellipse();
 
-            ellipse.Stroke = brushColor;
+            ellipse.Stroke = Brushes.Gray;
             ellipse.Width = 5;
             ellipse.Height = 5;
-            ellipse.Fill = brushColor;
+            ellipse.Fill = Brushes.LightGray;
             double left = e.GetPosition(Surface).X - (ellipse.Width / 2);
             double top = e.GetPosition(Surface).Y - (ellipse.Height / 2);
 
