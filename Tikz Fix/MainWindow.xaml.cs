@@ -63,8 +63,6 @@ namespace Tikz_Fix
                 case Shapes.Line:
                     Surface.Children.Remove(temporaryLine);
 
-                    temporaryLine.X1 = oldPoint.X;
-                    temporaryLine.Y1 = oldPoint.Y;
                     temporaryLine.X2 = e.GetPosition(Surface).X;
                     temporaryLine.Y2 = e.GetPosition(Surface).Y;
 
@@ -195,5 +193,6 @@ namespace Tikz_Fix
         {
             brushColor = Brushes.Red;
         }
+
     }
 }
