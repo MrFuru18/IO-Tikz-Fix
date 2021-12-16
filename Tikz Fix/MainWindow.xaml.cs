@@ -112,6 +112,23 @@ namespace Tikz_Fix
                     Surface.Children.Add(temporaryEllipse);
                     break;
             }
+            if (e.LeftButton == MouseButtonState.Released)
+            {
+                start = e.GetPosition(Surface);
+                end = e.GetPosition(Surface);
+
+                temporaryLine.Stroke = Brushes.Gray;
+                temporaryRectangle.Stroke = Brushes.Gray;
+                temporaryEllipse.Stroke = Brushes.Gray;
+                temporaryLine.X1 = e.GetPosition(Surface).X;
+                temporaryLine.Y1 = e.GetPosition(Surface).Y;
+                temporaryLine.X2 = e.GetPosition(Surface).X;
+                temporaryLine.Y2 = e.GetPosition(Surface).Y;
+                temporaryRectangle.Width = 0;
+                temporaryRectangle.Height = 0;
+                temporaryEllipse.Width = 0;
+                temporaryEllipse.Height = 0;
+            }
             Coordinates.Text = "(" + e.GetPosition(Surface).X + "," + e.GetPosition(Surface).Y + ")";
         }
 
@@ -135,7 +152,7 @@ namespace Tikz_Fix
                     drawEllipse(e);
                     break;
             }
-            updateTikzCode(e.GetPosition(Surface));
+            updateTikzCode();
         }
         
               #endregion
@@ -254,7 +271,7 @@ namespace Tikz_Fix
         #endregion
 
 
-        private void updateTikzCode(Point p)  
+        private void updateTikzCode()  
         {
             string shex = strokeColor.ToString();
             string fhex = fillColor.ToString();
@@ -273,15 +290,15 @@ namespace Tikz_Fix
             switch (currShape)
             {
                 case Shapes.Line:
-                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") -- (" + p.X + ",-" + p.Y + ")";
+                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") -- (" + end.X + ",-" + end.Y + ")";
                     break;
 
                 case Shapes.Rectangle:
-                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") rectangle (" + p.X + ",-" + p.Y + ")";
+                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") rectangle (" + end.X + ",-" + end.Y + ")";
                     break;
 
                 case Shapes.Ellipse:
-                    _tikzCode.shape = "(" + Math.Round((start.X + p.X)/2) + ",-" + Math.Round((start.Y + p.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(start.X - p.X)/2) + " and " + Math.Round(Math.Abs(start.Y - p.Y)/2) + ")";
+                    _tikzCode.shape = "(" + Math.Round((start.X + end.X)/2) + ",-" + Math.Round((start.Y + end.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(start.X - end.X)/2) + " and " + Math.Round(Math.Abs(start.Y - end.Y)/2) + ")";
                     break;
             }
             tikzCode.Add(_tikzCode);
