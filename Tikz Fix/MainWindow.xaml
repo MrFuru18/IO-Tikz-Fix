@@ -43,7 +43,13 @@
         </StackPanel>
         <Canvas x:Name="Surface" Grid.Row="1" Grid.Column="0"  Background="Transparent" MouseLeftButtonDown="Surface_MouseLeftButtonDown" MouseLeftButtonUp="Surface_MouseLeftButtonUp" MouseMove="Surface_MouseMove"></Canvas>
         <TextBlock x:Name="Coordinates" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-        <ListView x:Name="TikzCode" Grid.Row="1" Grid.Column="1"/>
+        <ListView x:Name="TikzCode" Grid.Row="1" Grid.Column="1">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding line}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </Window>
 

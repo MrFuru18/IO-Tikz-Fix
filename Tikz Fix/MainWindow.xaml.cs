@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace Tikz_Fix
     /// </summary>
     public partial class MainWindow : Window
     {
+        BindingList<TikzCode> tikzCode = new BindingList<TikzCode>();
         Ellipse temporaryPoint = new Ellipse();
         Line temporaryLine = new Line();
         Rectangle temporaryRectangle = new Rectangle();
@@ -30,10 +32,12 @@ namespace Tikz_Fix
             Line, Rectangle, Ellipse
         }
         private Shapes currShape;
+        private string currColor= "black";
         private Brush brushColor = Brushes.Black;
         public MainWindow()
         {
             InitializeComponent();
+            TikzCode.ItemsSource = tikzCode;
         }
 
         private void Surface_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -164,34 +168,39 @@ namespace Tikz_Fix
 
         private void updateTikzCode(Point p)
         {
+            TikzCode _tikzCode = new TikzCode();
             switch (currShape)
             {
                 case Shapes.Line:
-                    TikzCode.Items.Add("(" + oldPoint.X + ",-" + oldPoint.Y + ") -- (" + p.X + ",-" + p.Y + ")");
+                    _tikzCode.line = "[" + currColor + "] " + "(" + oldPoint.X + ",-" + oldPoint.Y + ") -- (" + p.X + ",-" + p.Y + ")";
                     break;
 
                 case Shapes.Rectangle:
-                    TikzCode.Items.Add("(" + oldPoint.X + ",-" + oldPoint.Y + ") rectangle (" + p.X + ",-" + p.Y + ")");
+                    _tikzCode.line = "[" + currColor + "] " + "(" + oldPoint.X + ",-" + oldPoint.Y + ") rectangle (" + p.X + ",-" + p.Y + ")";
                     break;
 
                 case Shapes.Ellipse:
-                    TikzCode.Items.Add("(" + Math.Round((oldPoint.X + p.X)/2) + ",-" + Math.Round((oldPoint.Y + p.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(oldPoint.X - p.X)/2) + " and " + Math.Round(Math.Abs(oldPoint.Y - p.Y)/2) + ")");
+                    _tikzCode.line = "[" + currColor + "] " + "(" + Math.Round((oldPoint.X + p.X)/2) + ",-" + Math.Round((oldPoint.Y + p.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(oldPoint.X - p.X)/2) + " and " + Math.Round(Math.Abs(oldPoint.Y - p.Y)/2) + ")";
                     break;
             }
+            tikzCode.Add(_tikzCode);
         }
 
         private void BlackButton_Click(object sender, RoutedEventArgs e)
         {
             brushColor = Brushes.Black;
+            currColor = "black";
         }
 
         private void BlueButton_Click(object sender, RoutedEventArgs e)
         {
             brushColor = Brushes.Blue;
+            currColor = "blue";
         }
         private void RedButton_Click(object sender, RoutedEventArgs e)
         {
             brushColor = Brushes.Red;
+            currColor = "red";
         }
 
     }
