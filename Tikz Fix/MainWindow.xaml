@@ -50,6 +50,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Content="Save" Click="Save_Click"/>
     </Grid>
 </Window>
 

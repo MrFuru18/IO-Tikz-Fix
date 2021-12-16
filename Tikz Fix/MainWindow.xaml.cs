@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
 
 namespace Tikz_Fix
 {
@@ -203,5 +204,23 @@ namespace Tikz_Fix
             currColor = "red";
         }
 
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                StreamWriter sw = new StreamWriter("TikzCode.txt");
+                sw.WriteLine("\\begin{tikzpicture}[scale=0.03]");
+                foreach (var element in tikzCode)
+                {
+                    sw.WriteLine("\\draw " + element.line + ";");
+                }
+                sw.WriteLine("\\end{tikzpicture}");
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+            }
+        }
     }
 }
