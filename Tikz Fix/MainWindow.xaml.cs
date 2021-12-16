@@ -21,11 +21,6 @@ namespace Tikz_Fix
     /// </summary>
     public partial class MainWindow : Window
     {
-
-        //private List<Point> points = new List<Point>();
-        int index = 0;
-
-        Point oldPoint = new Point();
         Point start = new Point();
         Point end = new Point();
 
@@ -66,11 +61,6 @@ namespace Tikz_Fix
         {
         
             start = e.GetPosition(Surface);
-        }
-
-        private void Surface_MouseMove(object sender, MouseEventArgs e)
-        {
-
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 end = e.GetPosition(Surface);
@@ -86,12 +76,12 @@ namespace Tikz_Fix
                 temporaryRectangle.Height = 0;
                 temporaryEllipse.Width = 0;
                 temporaryEllipse.Height = 0;
-                oldPoint = e.GetPosition(Surface);
+                start = e.GetPosition(Surface);
             }
+        }
 
-  
-
-
+        private void Surface_MouseMove(object sender, MouseEventArgs e)
+        {
             switch (currShape)
             {
                 case Shapes.Line:
@@ -106,9 +96,9 @@ namespace Tikz_Fix
                 case Shapes.Rectangle:
                     Surface.Children.Remove(temporaryRectangle);
 
-                    temporaryRectangle.Width = Math.Abs(oldPoint.X - e.GetPosition(Surface).X);
-                    temporaryRectangle.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
-                    temporaryRectangle.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
+                    temporaryRectangle.Width = Math.Abs(start.X - e.GetPosition(Surface).X);
+                    temporaryRectangle.Height = Math.Abs(start.Y - e.GetPosition(Surface).Y);
+                    temporaryRectangle.Margin = new Thickness(Math.Min(start.X, e.GetPosition(Surface).X), Math.Min(start.Y, e.GetPosition(Surface).Y), 0, 0);
 
                     Surface.Children.Add(temporaryRectangle);
                     break;
@@ -116,9 +106,9 @@ namespace Tikz_Fix
                 case Shapes.Elipse:
                     Surface.Children.Remove(temporaryEllipse);
 
-                    temporaryEllipse.Width = Math.Abs(oldPoint.X - e.GetPosition(Surface).X);
-                    temporaryEllipse.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
-                    temporaryEllipse.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
+                    temporaryEllipse.Width = Math.Abs(start.X - e.GetPosition(Surface).X);
+                    temporaryEllipse.Height = Math.Abs(start.Y - e.GetPosition(Surface).Y);
+                    temporaryEllipse.Margin = new Thickness(Math.Min(start.X, e.GetPosition(Surface).X), Math.Min(start.Y, e.GetPosition(Surface).Y), 0, 0);
 
                     Surface.Children.Add(temporaryEllipse);
                     break;
@@ -131,6 +121,7 @@ namespace Tikz_Fix
             temporaryLine.Stroke = Brushes.Transparent;
             temporaryRectangle.Stroke = Brushes.Transparent;
             temporaryEllipse.Stroke = Brushes.Transparent;
+            end = e.GetPosition(Surface);
             switch (currShape)
             {
                 case Shapes.Line:
@@ -173,8 +164,9 @@ namespace Tikz_Fix
             Line line = new Line();
             
             line.Stroke = strokeColor;
-            line.X1 = oldPoint.X;
-            line.Y1 = oldPoint.Y;
+            line.StrokeThickness = thickness;
+            line.X1 = start.X;
+            line.Y1 = start.Y;
             line.X2 = e.GetPosition(Surface).X;
             line.Y2 = e.GetPosition(Surface).Y;
 
@@ -270,15 +262,15 @@ namespace Tikz_Fix
             switch (currShape)
             {
                 case Shapes.Line:
-                    TikzCode.Items.Add("Line (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    TikzCode.Items.Add("Line (" + start.X + "," + start.Y + ") , (" + p.X + "," + p.Y + ")");
                     break;
 
                 case Shapes.Rectangle:
-                    TikzCode.Items.Add("Rectangle (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    TikzCode.Items.Add("Rectangle (" + start.X + "," + start.Y + ") , (" + p.X + "," + p.Y + ")");
                     break;
 
                 case Shapes.Elipse:
-                    TikzCode.Items.Add("Ellipse (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
+                    TikzCode.Items.Add("Ellipse (" + start.X + "," + start.Y + ") , (" + p.X + "," + p.Y + ")");
                     break;
             }
         }
