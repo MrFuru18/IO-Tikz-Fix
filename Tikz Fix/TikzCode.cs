@@ -8,6 +8,9 @@ namespace Tikz_Fix
 {
     class TikzCode
     {
-        public string line { get; set; }
+        public string shape { get; set; }
+        public string strokeColor { get; set; }
+        public string fillColor { get; set; }
+        public int thickness { get; set; }
     }
 }
