@@ -39,7 +39,6 @@ namespace Tikz_Fix
         }
         private Shapes currShape;
 
-        Ellipse temporaryPoint = new Ellipse();
         Line temporaryLine = new Line();
         Rectangle temporaryRectangle = new Rectangle();
         Ellipse temporaryEllipse = new Ellipse();
@@ -305,7 +304,7 @@ namespace Tikz_Fix
             thickness = (int)Thickness.SelectedItem;
         }
 
-        private void Save_Click(object sender, RoutedEventArgs e)
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -313,7 +312,7 @@ namespace Tikz_Fix
                 sw.WriteLine("\\begin{tikzpicture}[scale=0.03]");
                 foreach (var element in tikzCode)
                 {
-                    sw.WriteLine("\\definecolor{strokeColor}" + element.strokeColor + "\\definecolor{fillColor}" + element.fillColor + "\\draw [color=strokeColor, fill=fillColor, line width=" + element.thickness + "] " + element.shape + ";");
+                    sw.WriteLine("\\definecolor{strokeColor}" + element.strokeColor + " \\definecolor{fillColor}" + element.fillColor + " \\draw [color=strokeColor, fill=fillColor, line width=" + element.thickness + "] " + element.shape + ";");
                 }
                 sw.WriteLine("\\end{tikzpicture}");
                 sw.Close();
@@ -322,6 +321,18 @@ namespace Tikz_Fix
             {
                 Console.WriteLine("Exception: " + ex.Message);
             }
+        }
+
+        private void CopyButton_Click(object sender, RoutedEventArgs e)
+        {
+            string code = "";
+            code += "\\begin{tikzpicture}[scale=0.03]\n";
+            foreach (var element in tikzCode)
+            {
+                code += "\\definecolor{strokeColor}" + element.strokeColor + " \\definecolor{fillColor}" + element.fillColor + " \\draw [color=strokeColor, fill=fillColor, line width=" + element.thickness + "] " + element.shape + ";\n";
+            }
+            code += "\\end{tikzpicture}";
+            Clipboard.SetText(code);
         }
     }
 }
