@@ -44,7 +44,6 @@ namespace Tikz_Fix
         Line temporaryLine = new Line();
         Rectangle temporaryRectangle = new Rectangle();
         Ellipse temporaryEllipse = new Ellipse();
-        Point oldPoint = new Point();
         
         private Shapes currShape;
         
@@ -71,13 +70,11 @@ namespace Tikz_Fix
 
         private void Surface_MouseMove(object sender, MouseEventArgs e)
         {
+
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 end = e.GetPosition(Surface);
-              }
 
-            if (e.ButtonState == MouseButtonState.Pressed)
-            {
                 temporaryLine.Stroke = Brushes.Gray;
                 temporaryRectangle.Stroke = Brushes.Gray;
                 temporaryEllipse.Stroke = Brushes.Gray;
@@ -116,7 +113,7 @@ namespace Tikz_Fix
                     Surface.Children.Add(temporaryRectangle);
                     break;
 
-                case Shapes.Ellipse:
+                case Shapes.Elipse:
                     Surface.Children.Remove(temporaryEllipse);
 
                     temporaryEllipse.Width = Math.Abs(oldPoint.X - e.GetPosition(Surface).X);
@@ -144,8 +141,8 @@ namespace Tikz_Fix
                     drawRectangle(e);
                     break;
 
-                case Shapes.Ellipse:
-                    drawEllipse(e);
+                case Shapes.Elipse:
+                    drawElipse(e);
                     break;
             }
             updateTikzCode(e.GetPosition(Surface));
@@ -265,10 +262,7 @@ namespace Tikz_Fix
 
         #endregion
 
-        private void updateTikzCode(Line line)
-
-            Surface.Children.Add(ellipse);
-        }
+  
 
         private void updateTikzCode(Point p)
           
@@ -283,7 +277,7 @@ namespace Tikz_Fix
                     TikzCode.Items.Add("Rectangle (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
                     break;
 
-                case Shapes.Ellipse:
+                case Shapes.Elipse:
                     TikzCode.Items.Add("Ellipse (" + oldPoint.X + "," + oldPoint.Y + ") , (" + p.X + "," + p.Y + ")");
                     break;
             }
