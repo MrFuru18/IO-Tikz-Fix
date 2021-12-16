@@ -41,7 +41,7 @@
                     Orientation="Horizontal">
             <RadioButton Name="LineButton" GroupName="Shapes" Content="Line" IsChecked="True" Click="LineButton_Click"/>
             <RadioButton Name="RectangleButton" GroupName="Shapes" Content="Rectangle" Click="RectangleButton_Click"/>
-            <RadioButton Name="ElipseButton" GroupName="Shapes" Content="Elipse" Click="ElipseButton_Click"/>
+            <RadioButton Name="EllipseButton" GroupName="Shapes" Content="Ellipse" Click="EllipseButton_Click"/>
         </StackPanel>
         <StackPanel Grid.Column="1"
                     Grid.Row ="0" 

@@ -33,18 +33,16 @@ namespace Tikz_Fix
         private int thickness = 2;
         private int[] thicknessValues = {2, 4, 6, 8, 10, 12, 14, 16};
 
-
-
         private enum Shapes
         {
-            Line, Rectangle, Elipse
+            Line, Rectangle, Ellipse
         }
+        private Shapes currShape;
+
         Ellipse temporaryPoint = new Ellipse();
         Line temporaryLine = new Line();
         Rectangle temporaryRectangle = new Rectangle();
         Ellipse temporaryEllipse = new Ellipse();
-        
-        private Shapes currShape;
         
         public MainWindow()
         {
@@ -63,10 +61,9 @@ namespace Tikz_Fix
 
         private void Surface_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-        
-            start = e.GetPosition(Surface);
             if (e.LeftButton == MouseButtonState.Pressed)
             {
+                start = e.GetPosition(Surface);
                 end = e.GetPosition(Surface);
 
                 temporaryLine.Stroke = Brushes.Gray;
@@ -80,7 +77,6 @@ namespace Tikz_Fix
                 temporaryRectangle.Height = 0;
                 temporaryEllipse.Width = 0;
                 temporaryEllipse.Height = 0;
-                start = e.GetPosition(Surface);
             }
         }
 
@@ -107,7 +103,7 @@ namespace Tikz_Fix
                     Surface.Children.Add(temporaryRectangle);
                     break;
 
-                case Shapes.Elipse:
+                case Shapes.Ellipse:
                     Surface.Children.Remove(temporaryEllipse);
 
                     temporaryEllipse.Width = Math.Abs(start.X - e.GetPosition(Surface).X);
@@ -136,8 +132,8 @@ namespace Tikz_Fix
                     drawRectangle(e);
                     break;
 
-                case Shapes.Elipse:
-                    drawElipse(e);
+                case Shapes.Ellipse:
+                    drawEllipse(e);
                     break;
             }
             updateTikzCode(e.GetPosition(Surface));
@@ -155,9 +151,9 @@ namespace Tikz_Fix
             currShape = Shapes.Rectangle;
         }
 
-        private void ElipseButton_Click(object sender, RoutedEventArgs e)
+        private void EllipseButton_Click(object sender, RoutedEventArgs e)
         {
-            currShape = Shapes.Elipse;
+            currShape = Shapes.Ellipse;
         }
 
 
@@ -176,7 +172,6 @@ namespace Tikz_Fix
 
             Surface.Children.Add(line);   
         }
-
 
 
         private void drawRectangle(MouseButtonEventArgs e) 
@@ -217,9 +212,9 @@ namespace Tikz_Fix
             Surface.Children.Add(newRectangle);
         }
 
-        private void drawElipse(MouseButtonEventArgs e)
+        private void drawEllipse(MouseButtonEventArgs e)
         {
-            Ellipse newElipse = new Ellipse()
+            Ellipse newEllipse = new Ellipse()
             {
                 Stroke = strokeColor,
                 Fill = fillColor,
@@ -232,33 +227,32 @@ namespace Tikz_Fix
             if (end.X >= start.X)
             {
               
-                newElipse.SetValue(Canvas.LeftProperty, start.X);
-                newElipse.Width = end.X - start.X;
+                newEllipse.SetValue(Canvas.LeftProperty, start.X);
+                newEllipse.Width = end.X - start.X;
             }
             else
             {
-                newElipse.SetValue(Canvas.LeftProperty, end.X);
-                newElipse.Width = start.X - end.X;
+                newEllipse.SetValue(Canvas.LeftProperty, end.X);
+                newEllipse.Width = start.X - end.X;
             }
 
             if (end.Y >= start.Y)
             {
               
-                newElipse.SetValue(Canvas.TopProperty, start.Y);
-                newElipse.Height = end.Y - start.Y;
+                newEllipse.SetValue(Canvas.TopProperty, start.Y);
+                newEllipse.Height = end.Y - start.Y;
             }
             else
             {
-                newElipse.SetValue(Canvas.TopProperty, end.Y);
-                newElipse.Height = start.Y - end.Y;
+                newEllipse.SetValue(Canvas.TopProperty, end.Y);
+                newEllipse.Height = start.Y - end.Y;
             }
           
-            Surface.Children.Add(newElipse);
+            Surface.Children.Add(newEllipse);
         }
 
         #endregion
 
-  
 
         private void updateTikzCode(Point p)
           
@@ -267,15 +261,15 @@ namespace Tikz_Fix
             switch (currShape)
             {
                 case Shapes.Line:
-                    _tikzCode.line = "[" + currColor + "] " + "(" + oldPoint.X + ",-" + oldPoint.Y + ") -- (" + p.X + ",-" + p.Y + ")";
+                    _tikzCode.line = "[" + "] " + "(" + start.X + ",-" + start.Y + ") -- (" + p.X + ",-" + p.Y + ")";
                     break;
 
                 case Shapes.Rectangle:
-                    _tikzCode.line = "[" + currColor + "] " + "(" + oldPoint.X + ",-" + oldPoint.Y + ") rectangle (" + p.X + ",-" + p.Y + ")";
+                    _tikzCode.line = "[" +"] " + "(" + start.X + ",-" + start.Y + ") rectangle (" + p.X + ",-" + p.Y + ")";
                     break;
 
                 case Shapes.Ellipse:
-                    _tikzCode.line = "[" + currColor + "] " + "(" + Math.Round((oldPoint.X + p.X)/2) + ",-" + Math.Round((oldPoint.Y + p.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(oldPoint.X - p.X)/2) + " and " + Math.Round(Math.Abs(oldPoint.Y - p.Y)/2) + ")";
+                    _tikzCode.line = "[" + "] " + "(" + Math.Round((start.X + p.X)/2) + ",-" + Math.Round((start.Y + p.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(start.X - p.X)/2) + " and " + Math.Round(Math.Abs(start.Y - p.Y)/2) + ")";
                     break;
             }
             tikzCode.Add(_tikzCode);
