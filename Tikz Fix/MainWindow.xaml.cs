@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,28 +24,51 @@ namespace Tikz_Fix
     public partial class MainWindow : Window
     {
         BindingList<TikzCode> tikzCode = new BindingList<TikzCode>();
+        
+        Point start = new Point();
+        Point end = new Point();
+
+        private Brush strokeColor = Brushes.Black;
+        private Brush fillColor = Brushes.Transparent;
+        private int thickness = 2;
+        private int[] thicknessValues = {2, 4, 6, 8, 10, 12, 14, 16};
+
+
+
+        private enum Shapes
+        {
+            Line, Rectangle, Elipse
+        }
         Ellipse temporaryPoint = new Ellipse();
         Line temporaryLine = new Line();
         Rectangle temporaryRectangle = new Rectangle();
         Ellipse temporaryEllipse = new Ellipse();
-        Point oldPoint = new Point();
-        private enum Shapes
-        {
-            Line, Rectangle, Ellipse
-        }
+        
         private Shapes currShape;
-        private string currColor= "black";
-        private Brush brushColor = Brushes.Black;
+        
         public MainWindow()
         {
             InitializeComponent();
+            
             TikzCode.ItemsSource = tikzCode;
+            StrokeColor.ItemsSource = typeof(Brushes).GetProperties();
+            FillColor.ItemsSource = typeof(Brushes).GetProperties();
+            StrokeColor.SelectedItem = typeof(Brushes).GetProperty("Black");
+            FillColor.SelectedItem = typeof(Brushes).GetProperty("Transparent");
+            Thickness.ItemsSource = thicknessValues;
+            Thickness.SelectedItem = 2;
         }
+
+    #region Mouse moves
 
         private void Surface_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ButtonState == MouseButtonState.Pressed)
+        
+            start = e.GetPosition(Surface);
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
+                end = e.GetPosition(Surface);
+
                 temporaryLine.Stroke = Brushes.Gray;
                 temporaryRectangle.Stroke = Brushes.Gray;
                 temporaryEllipse.Stroke = Brushes.Gray;
@@ -56,9 +80,8 @@ namespace Tikz_Fix
                 temporaryRectangle.Height = 0;
                 temporaryEllipse.Width = 0;
                 temporaryEllipse.Height = 0;
-                oldPoint = e.GetPosition(Surface);
+                start = e.GetPosition(Surface);
             }
-                
         }
 
         private void Surface_MouseMove(object sender, MouseEventArgs e)
@@ -77,19 +100,19 @@ namespace Tikz_Fix
                 case Shapes.Rectangle:
                     Surface.Children.Remove(temporaryRectangle);
 
-                    temporaryRectangle.Width = Math.Abs(oldPoint.X - e.GetPosition(Surface).X);
-                    temporaryRectangle.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
-                    temporaryRectangle.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
+                    temporaryRectangle.Width = Math.Abs(start.X - e.GetPosition(Surface).X);
+                    temporaryRectangle.Height = Math.Abs(start.Y - e.GetPosition(Surface).Y);
+                    temporaryRectangle.Margin = new Thickness(Math.Min(start.X, e.GetPosition(Surface).X), Math.Min(start.Y, e.GetPosition(Surface).Y), 0, 0);
 
                     Surface.Children.Add(temporaryRectangle);
                     break;
 
-                case Shapes.Ellipse:
+                case Shapes.Elipse:
                     Surface.Children.Remove(temporaryEllipse);
 
-                    temporaryEllipse.Width = Math.Abs(oldPoint.X - e.GetPosition(Surface).X);
-                    temporaryEllipse.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
-                    temporaryEllipse.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
+                    temporaryEllipse.Width = Math.Abs(start.X - e.GetPosition(Surface).X);
+                    temporaryEllipse.Height = Math.Abs(start.Y - e.GetPosition(Surface).Y);
+                    temporaryEllipse.Margin = new Thickness(Math.Min(start.X, e.GetPosition(Surface).X), Math.Min(start.Y, e.GetPosition(Surface).Y), 0, 0);
 
                     Surface.Children.Add(temporaryEllipse);
                     break;
@@ -102,6 +125,7 @@ namespace Tikz_Fix
             temporaryLine.Stroke = Brushes.Transparent;
             temporaryRectangle.Stroke = Brushes.Transparent;
             temporaryEllipse.Stroke = Brushes.Transparent;
+            end = e.GetPosition(Surface);
             switch (currShape)
             {
                 case Shapes.Line:
@@ -112,13 +136,15 @@ namespace Tikz_Fix
                     drawRectangle(e);
                     break;
 
-                case Shapes.Ellipse:
-                    drawEllipse(e);
+                case Shapes.Elipse:
+                    drawElipse(e);
                     break;
             }
             updateTikzCode(e.GetPosition(Surface));
         }
-
+        
+              #endregion
+              
         private void LineButton_Click(object sender, RoutedEventArgs e)
         {
             currShape = Shapes.Line;
@@ -129,45 +155,113 @@ namespace Tikz_Fix
             currShape = Shapes.Rectangle;
         }
 
+        private void ElipseButton_Click(object sender, RoutedEventArgs e)
+        {
+            currShape = Shapes.Elipse;
+        }
+
+
+        #region Draw Shapes
 
         private void drawLine(MouseButtonEventArgs e) 
         {
             Line line = new Line();
-
-            line.Stroke = brushColor;
-            line.X1 = oldPoint.X;
-            line.Y1 = oldPoint.Y;
+            
+            line.Stroke = strokeColor;
+            line.StrokeThickness = thickness;
+            line.X1 = start.X;
+            line.Y1 = start.Y;
             line.X2 = e.GetPosition(Surface).X;
             line.Y2 = e.GetPosition(Surface).Y;
 
             Surface.Children.Add(line);   
         }
 
+
+
         private void drawRectangle(MouseButtonEventArgs e) 
         {
-             Rectangle rectangle = new Rectangle();
+            Rectangle newRectangle = new Rectangle()
+            {
+                Stroke = strokeColor,
+                Fill = fillColor,
+                StrokeThickness = thickness
+                
+            };
 
-            rectangle.Stroke = brushColor;
-            rectangle.Width = Math.Abs(oldPoint.X-e.GetPosition(Surface).X);
-            rectangle.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
-            rectangle.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
 
-            Surface.Children.Add(rectangle);
+            if (end.X >= start.X)
+            {
+                // Defines the left part of the rectangle
+                newRectangle.SetValue(Canvas.LeftProperty, start.X);
+                newRectangle.Width = end.X - start.X;
+            }
+            else
+            {
+                newRectangle.SetValue(Canvas.LeftProperty, end.X);
+                newRectangle.Width = start.X - end.X;
+            }
+
+            if (end.Y >= start.Y)
+            {
+                // Defines the top part of the rectangle
+                newRectangle.SetValue(Canvas.TopProperty, start.Y);
+                newRectangle.Height = end.Y - start.Y;
+            }
+            else
+            {
+                newRectangle.SetValue(Canvas.TopProperty, end.Y);
+                newRectangle.Height = start.Y - end.Y;
+            }
+          
+            Surface.Children.Add(newRectangle);
         }
 
-        private void drawEllipse(MouseButtonEventArgs e)
+        private void drawElipse(MouseButtonEventArgs e)
         {
-            Ellipse ellipse = new Ellipse();
+            Ellipse newElipse = new Ellipse()
+            {
+                Stroke = strokeColor,
+                Fill = fillColor,
+                StrokeThickness = thickness,
+                Height = 10,
+                Width = 10
+            };
 
-            ellipse.Stroke = brushColor;
-            ellipse.Width = Math.Abs(oldPoint.X - e.GetPosition(Surface).X);
-            ellipse.Height = Math.Abs(oldPoint.Y - e.GetPosition(Surface).Y);
-            ellipse.Margin = new Thickness(Math.Min(oldPoint.X, e.GetPosition(Surface).X), Math.Min(oldPoint.Y, e.GetPosition(Surface).Y), 0, 0);
 
-            Surface.Children.Add(ellipse);
+            if (end.X >= start.X)
+            {
+              
+                newElipse.SetValue(Canvas.LeftProperty, start.X);
+                newElipse.Width = end.X - start.X;
+            }
+            else
+            {
+                newElipse.SetValue(Canvas.LeftProperty, end.X);
+                newElipse.Width = start.X - end.X;
+            }
+
+            if (end.Y >= start.Y)
+            {
+              
+                newElipse.SetValue(Canvas.TopProperty, start.Y);
+                newElipse.Height = end.Y - start.Y;
+            }
+            else
+            {
+                newElipse.SetValue(Canvas.TopProperty, end.Y);
+                newElipse.Height = start.Y - end.Y;
+            }
+          
+            Surface.Children.Add(newElipse);
         }
+
+        #endregion
+
+  
 
         private void updateTikzCode(Point p)
+          
         {
             TikzCode _tikzCode = new TikzCode();
             switch (currShape)
@@ -187,21 +281,21 @@ namespace Tikz_Fix
             tikzCode.Add(_tikzCode);
         }
 
-        private void BlackButton_Click(object sender, RoutedEventArgs e)
+
+
+        private void StrokeColor_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            brushColor = Brushes.Black;
-            currColor = "black";
+            strokeColor = (Brush)(StrokeColor.SelectedItem as PropertyInfo).GetValue(null, null);
         }
 
-        private void BlueButton_Click(object sender, RoutedEventArgs e)
+        private void FillColor_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            brushColor = Brushes.Blue;
-            currColor = "blue";
+            fillColor = (Brush)(FillColor.SelectedItem as PropertyInfo).GetValue(null, null);
         }
-        private void RedButton_Click(object sender, RoutedEventArgs e)
+
+        private void Thickness_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            brushColor = Brushes.Red;
-            currColor = "red";
+            thickness = (int)Thickness.SelectedItem;
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
