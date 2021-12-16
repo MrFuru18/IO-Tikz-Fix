@@ -88,7 +88,7 @@
         <ListView x:Name="TikzCode" Grid.Row="1" Grid.Column="1">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding line}"/>
+                    <TextBlock Text="{Binding shape}"/>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

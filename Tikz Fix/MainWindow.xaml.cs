@@ -174,6 +174,7 @@ namespace Tikz_Fix
         }
 
 
+
         private void drawRectangle(MouseButtonEventArgs e) 
         {
             Rectangle newRectangle = new Rectangle()
@@ -254,22 +255,34 @@ namespace Tikz_Fix
         #endregion
 
 
-        private void updateTikzCode(Point p)
-          
+        private void updateTikzCode(Point p)  
         {
+            string shex = strokeColor.ToString();
+            string fhex = fillColor.ToString();
+            int sr = Convert.ToInt32(shex.Substring(3, 2), 16);
+            int sg = Convert.ToInt32(shex.Substring(5, 2), 16);
+            int sb = Convert.ToInt32(shex.Substring(7, 2), 16);
+            int fr = Convert.ToInt32(fhex.Substring(3, 2), 16);
+            int fg = Convert.ToInt32(fhex.Substring(5, 2), 16);
+            int fb = Convert.ToInt32(fhex.Substring(7, 2), 16);
+
             TikzCode _tikzCode = new TikzCode();
+
+            _tikzCode.strokeColor = "{RGB}{" + sr + "," + sg + "," + sb + "}";
+            _tikzCode.fillColor = "{RGB}{" + fr + "," + fg + "," + fb + "}";
+            _tikzCode.thickness = thickness;
             switch (currShape)
             {
                 case Shapes.Line:
-                    _tikzCode.line = "[" + "] " + "(" + start.X + ",-" + start.Y + ") -- (" + p.X + ",-" + p.Y + ")";
+                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") -- (" + p.X + ",-" + p.Y + ")";
                     break;
 
                 case Shapes.Rectangle:
-                    _tikzCode.line = "[" +"] " + "(" + start.X + ",-" + start.Y + ") rectangle (" + p.X + ",-" + p.Y + ")";
+                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") rectangle (" + p.X + ",-" + p.Y + ")";
                     break;
 
                 case Shapes.Ellipse:
-                    _tikzCode.line = "[" + "] " + "(" + Math.Round((start.X + p.X)/2) + ",-" + Math.Round((start.Y + p.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(start.X - p.X)/2) + " and " + Math.Round(Math.Abs(start.Y - p.Y)/2) + ")";
+                    _tikzCode.shape = "(" + Math.Round((start.X + p.X)/2) + ",-" + Math.Round((start.Y + p.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(start.X - p.X)/2) + " and " + Math.Round(Math.Abs(start.Y - p.Y)/2) + ")";
                     break;
             }
             tikzCode.Add(_tikzCode);
@@ -300,7 +313,7 @@ namespace Tikz_Fix
                 sw.WriteLine("\\begin{tikzpicture}[scale=0.03]");
                 foreach (var element in tikzCode)
                 {
-                    sw.WriteLine("\\draw " + element.line + ";");
+                    sw.WriteLine("\\definecolor{strokeColor}" + element.strokeColor + "\\definecolor{fillColor}" + element.fillColor + "\\draw [color=strokeColor, fill=fillColor, line width=" + element.thickness + "] " + element.shape + ";");
                 }
                 sw.WriteLine("\\end{tikzpicture}");
                 sw.Close();
