@@ -92,7 +92,8 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Content="Save" Click="Save_Click"/>
+        <Button x:Name="CopyButton" Grid.Row="1" Grid.Column="1" Margin="0,0,40,0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Content="Copy" Click="CopyButton_Click"/>
+        <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" Margin="40,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Content="Save" Click="SaveButton_Click"/>
     </Grid>
 </Window>
 
