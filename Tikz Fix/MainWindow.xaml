@@ -85,7 +85,14 @@
                 MouseMove="Surface_MouseMove">
         </Canvas>
         <TextBlock x:Name="Coordinates" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-        <ListView x:Name="TikzCode" Grid.Row="1" Grid.Column="1"/>
+        <ListView x:Name="TikzCode" Grid.Row="1" Grid.Column="1">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding line}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Content="Save" Click="Save_Click"/>
     </Grid>
 </Window>
 
