@@ -24,14 +24,17 @@ namespace Tikz_Fix
     public partial class MainWindow : Window
     {
         BindingList<TikzCode> tikzCode = new BindingList<TikzCode>();
-        
+        List<Line> lines = new List<Line>();
+        List<Rectangle> rectangles = new List<Rectangle>();
+        List<Ellipse> ellipses = new List<Ellipse>();
+
         Point start = new Point();
         Point end = new Point();
 
         private Brush strokeColor = Brushes.Black;
         private Brush fillColor = Brushes.Transparent;
         private int thickness = 2;
-        private int[] thicknessValues = {2, 4, 6, 8, 10, 12, 14, 16};
+        private int[] thicknessValues = { 2, 4, 6, 8, 10, 12, 14, 16 };
 
         private enum Shapes
         {
@@ -42,11 +45,12 @@ namespace Tikz_Fix
         Line temporaryLine = new Line();
         Rectangle temporaryRectangle = new Rectangle();
         Ellipse temporaryEllipse = new Ellipse();
-        
+
+
         public MainWindow()
         {
             InitializeComponent();
-            
+
             TikzCode.ItemsSource = tikzCode;
             StrokeColor.ItemsSource = typeof(Brushes).GetProperties();
             FillColor.ItemsSource = typeof(Brushes).GetProperties();
@@ -56,7 +60,7 @@ namespace Tikz_Fix
             Thickness.SelectedItem = 2;
         }
 
-    #region Mouse moves
+        #region Mouse moves
 
         private void Surface_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -154,9 +158,9 @@ namespace Tikz_Fix
             }
             updateTikzCode();
         }
-        
-              #endregion
-              
+
+        #endregion
+
         private void LineButton_Click(object sender, RoutedEventArgs e)
         {
             currShape = Shapes.Line;
@@ -175,10 +179,10 @@ namespace Tikz_Fix
 
         #region Draw Shapes
 
-        private void drawLine(MouseButtonEventArgs e) 
+        private void drawLine(MouseButtonEventArgs e)
         {
             Line line = new Line();
-            
+
             line.Stroke = strokeColor;
             line.StrokeThickness = thickness;
             line.X1 = start.X;
@@ -186,19 +190,20 @@ namespace Tikz_Fix
             line.X2 = e.GetPosition(Surface).X;
             line.Y2 = e.GetPosition(Surface).Y;
 
-            Surface.Children.Add(line);   
+            lines.Add(line);
+            Surface.Children.Add(line);
         }
 
 
 
-        private void drawRectangle(MouseButtonEventArgs e) 
+        private void drawRectangle(MouseButtonEventArgs e)
         {
             Rectangle newRectangle = new Rectangle()
             {
                 Stroke = strokeColor,
                 Fill = fillColor,
                 StrokeThickness = thickness
-                
+
             };
 
 
@@ -225,7 +230,8 @@ namespace Tikz_Fix
                 newRectangle.SetValue(Canvas.TopProperty, end.Y);
                 newRectangle.Height = start.Y - end.Y;
             }
-          
+
+            rectangles.Add(newRectangle);
             Surface.Children.Add(newRectangle);
         }
 
@@ -243,7 +249,7 @@ namespace Tikz_Fix
 
             if (end.X >= start.X)
             {
-              
+
                 newEllipse.SetValue(Canvas.LeftProperty, start.X);
                 newEllipse.Width = end.X - start.X;
             }
@@ -255,7 +261,7 @@ namespace Tikz_Fix
 
             if (end.Y >= start.Y)
             {
-              
+
                 newEllipse.SetValue(Canvas.TopProperty, start.Y);
                 newEllipse.Height = end.Y - start.Y;
             }
@@ -264,14 +270,15 @@ namespace Tikz_Fix
                 newEllipse.SetValue(Canvas.TopProperty, end.Y);
                 newEllipse.Height = start.Y - end.Y;
             }
-          
+
+            ellipses.Add(newEllipse);
             Surface.Children.Add(newEllipse);
         }
 
         #endregion
 
 
-        private void updateTikzCode()  
+        private void updateTikzCode()
         {
             string shex = strokeColor.ToString();
             string fhex = fillColor.ToString();
@@ -298,7 +305,7 @@ namespace Tikz_Fix
                     break;
 
                 case Shapes.Ellipse:
-                    _tikzCode.shape = "(" + Math.Round((start.X + end.X)/2) + ",-" + Math.Round((start.Y + end.Y)/2) + ") ellipse (" + Math.Round(Math.Abs(start.X - end.X)/2) + " and " + Math.Round(Math.Abs(start.Y - end.Y)/2) + ")";
+                    _tikzCode.shape = "(" + Math.Round((start.X + end.X) / 2) + ",-" + Math.Round((start.Y + end.Y) / 2) + ") ellipse (" + Math.Round(Math.Abs(start.X - end.X) / 2) + " and " + Math.Round(Math.Abs(start.Y - end.Y) / 2) + ")";
                     break;
             }
             tikzCode.Add(_tikzCode);
@@ -350,6 +357,47 @@ namespace Tikz_Fix
             }
             code += "\\end{tikzpicture}";
             Clipboard.SetText(code);
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            int idx = 0;
+            TikzCode ele = new TikzCode();
+            ele = (TikzCode)TikzCode.SelectedItem;
+            if (ele != null)
+            {
+                if (ele.shape.Contains("--"))
+                {
+                    for (int i = 0; i < tikzCode.IndexOf(ele); i++)
+                    {
+                        if (tikzCode[i].shape.Contains("--"))
+                            idx++;
+                    }
+                    Surface.Children.Remove(lines[idx]);
+                    lines.RemoveAt(idx);
+                }
+                if (ele.shape.Contains("rectangle"))
+                {
+                    for (int i = 0; i < tikzCode.IndexOf(ele); i++)
+                    {
+                        if (tikzCode[i].shape.Contains("rectangle"))
+                            idx++;
+                    }
+                    Surface.Children.Remove(rectangles[idx]);
+                    rectangles.RemoveAt(idx);
+                }
+                if (ele.shape.Contains("ellipse"))
+                {
+                    for (int i = 0; i < tikzCode.IndexOf(ele); i++)
+                    {
+                        if (tikzCode[i].shape.Contains("ellipse"))
+                            idx++;
+                    }
+                    Surface.Children.Remove(ellipses[idx]);
+                    ellipses.RemoveAt(idx);
+                }
+                tikzCode.Remove(ele);
+            }
         }
     }
 }
