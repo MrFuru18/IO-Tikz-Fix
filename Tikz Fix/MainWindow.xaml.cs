@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using Microsoft.Win32;
 
 namespace Tikz_Fix
 {
@@ -398,6 +399,34 @@ namespace Tikz_Fix
                 }
                 tikzCode.Remove(ele);
             }
+        }
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            string code = OpenFile();
+            MessageBox.Show(code);
+
+        }
+        public static string OpenFile()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = @"c:\";
+            string path;
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Uri fileUri = new Uri(openFileDialog.FileName);
+                path = openFileDialog.FileName.ToString();
+                try
+                {
+                    string readText = File.ReadAllText(path);
+                    return readText;
+                }
+                catch
+                {
+                    MessageBox.Show("Wybrano z³y plik!", "Uwaga");
+                }
+            }
+            return null;
         }
     }
 }
