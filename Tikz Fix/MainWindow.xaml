@@ -85,16 +85,27 @@
                 MouseMove="Surface_MouseMove">
         </Canvas>
         <TextBlock x:Name="Coordinates" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-        <ListView x:Name="TikzCode" Grid.Row="1" Grid.Column="1">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding shape}"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        <Button x:Name="DeleteButton" Grid.Row="1" Grid.Column="1" Margin="50,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Content="Delete" Click="DeleteButton_Click"/>
-        <Button x:Name="CopyButton" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Content="Copy" Click="CopyButton_Click"/>
-        <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" Margin="0,0,50,0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Save" Click="SaveButton_Click"/>
+        
+        <StackPanel  Grid.Row="1" Grid.Column="1" Orientation="Vertical">
+            <ListView x:Name="TikzCode" Height="420">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding shape}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <StackPanel Orientation="Horizontal" Margin="0,5,0,0" HorizontalAlignment="Center" >
+                <Button x:Name="DeleteButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Delete" Click="DeleteButton_Click"/>
+                <Button x:Name="ClearButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Clear" Click="ClearButton_Click"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,5,0,0" HorizontalAlignment="Center" >
+                <Button x:Name="CopyButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Copy" Click="CopyButton_Click"/>
+                <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Save" Click="SaveButton_Click"/>
+                <Button x:Name="LoadButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Load" Click="LoadButton_Click"/>
+            </StackPanel>
+        </StackPanel>
+        
+        
     </Grid>
 </Window>
 
