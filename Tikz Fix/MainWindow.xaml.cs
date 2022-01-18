@@ -484,6 +484,24 @@ namespace Tikz_Fix
             {
                 int thick = element.thickness;
 
+                byte[] sRGB = { 0, 0, 0 };                
+                sRGB[0] = byte.Parse(element.strokeColor.Substring(element.strokeColor.IndexOf("}") + 2, Math.Abs(element.strokeColor.IndexOf("}") + 2 - element.strokeColor.IndexOf(","))));
+                string scolor2 = element.strokeColor.Substring(element.strokeColor.IndexOf(",")+1);
+                sRGB[1] = byte.Parse(scolor2.Substring(0, scolor2.IndexOf(",")));
+                string scolor3 = scolor2.Substring(scolor2.IndexOf(",")+1);
+                sRGB[2] = byte.Parse(scolor3.Substring(0, scolor3.IndexOf("}")));
+                Color myColor = Color.FromRgb(sRGB[0], sRGB[1], sRGB[2]);
+                string strokeHex = "#FF" + myColor.R.ToString("X2") + myColor.G.ToString("X2") + myColor.B.ToString("X2");
+
+                byte[] fRGB = { 0, 0, 0 };
+                fRGB[0] = byte.Parse(element.fillColor.Substring(element.strokeColor.IndexOf("}") + 2, Math.Abs(element.fillColor.IndexOf("}") + 2 - element.fillColor.IndexOf(","))));
+                string fcolor2 = element.fillColor.Substring(element.fillColor.IndexOf(",") + 1);
+                fRGB[1] = byte.Parse(fcolor2.Substring(0, fcolor2.IndexOf(",")));
+                string fcolor3 = fcolor2.Substring(fcolor2.IndexOf(",") + 1);
+                fRGB[2] = byte.Parse(fcolor3.Substring(0, fcolor3.IndexOf("}")));
+                myColor = Color.FromRgb(fRGB[0], fRGB[1], fRGB[2]);
+                string fillHex = "#FF" + myColor.R.ToString("X2") + myColor.G.ToString("X2") + myColor.B.ToString("X2");
+
                 Point p1 = new Point();
                 Point p2 = new Point();
                 p1.X = double.Parse(element.shape.Substring(element.shape.IndexOf("(")+1, element.shape.IndexOf(",")));
@@ -506,7 +524,7 @@ namespace Tikz_Fix
                     case "--":
                         Line line = new Line();
 
-                        line.Stroke = strokeColor;
+                        line.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
                         line.StrokeThickness = thick;
                         line.X1 = p1.X;
                         line.Y1 = p1.Y;
@@ -520,7 +538,8 @@ namespace Tikz_Fix
                     case "rectangle":
                         Rectangle rectangle = new Rectangle();
                            
-                        rectangle.Stroke = strokeColor;
+                        rectangle.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
+                        rectangle.Fill = (Brush)(new BrushConverter().ConvertFrom(fillHex));
                         rectangle.StrokeThickness = thick;
 
                         rectangle.Width = Math.Abs(p1.X - p2.X);
@@ -534,7 +553,8 @@ namespace Tikz_Fix
                     case "ellipse":
                         Ellipse ellipse = new Ellipse();
 
-                        ellipse.Stroke = strokeColor;
+                        ellipse.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
+                        ellipse.Fill = (Brush)(new BrushConverter().ConvertFrom(fillHex));
                         ellipse.StrokeThickness = thick;
 
                         ellipse.Width = p2.X * 2;
