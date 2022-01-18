@@ -461,7 +461,7 @@ namespace Tikz_Fix
                 _tikzCode.thickness = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf("]")));
                 index += text.Substring(index).IndexOf("]");
 
-                index += text.Substring(index).IndexOf("] (") + "] (".Length;
+                index += text.Substring(index).IndexOf("(") + "(".Length;
                 _tikzCode.shape += "(" + text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
                 index += text.Substring(index).IndexOf(")") + 1;
                 _tikzCode.shape += text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
