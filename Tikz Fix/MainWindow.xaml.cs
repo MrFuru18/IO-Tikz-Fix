@@ -298,15 +298,15 @@ namespace Tikz_Fix
             switch (currShape)
             {
                 case Shapes.Line:
-                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") -- (" + end.X + ",-" + end.Y + ")";
+                    _tikzCode.shape = "(" + start.X + "," + start.Y + ") -- (" + end.X + "," + end.Y + ")";
                     break;
 
                 case Shapes.Rectangle:
-                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") rectangle (" + end.X + ",-" + end.Y + ")";
+                    _tikzCode.shape = "(" + start.X + "," + start.Y + ") rectangle (" + end.X + "," + end.Y + ")";
                     break;
 
                 case Shapes.Ellipse:
-                    _tikzCode.shape = "(" + Math.Round((start.X + end.X) / 2) + ",-" + Math.Round((start.Y + end.Y) / 2) + ") ellipse (" + Math.Round(Math.Abs(start.X - end.X) / 2) + " and " + Math.Round(Math.Abs(start.Y - end.Y) / 2) + ")";
+                    _tikzCode.shape = "(" + Math.Round((start.X + end.X) / 2) + "," + Math.Round((start.Y + end.Y) / 2) + ") ellipse (" + Math.Round(Math.Abs(start.X - end.X) / 2) + " and " + Math.Round(Math.Abs(start.Y - end.Y) / 2) + ")";
                     break;
             }
             tikzCode.Add(_tikzCode);
@@ -445,7 +445,6 @@ namespace Tikz_Fix
             _tikzCode.shape = "";
             int index = 0;
             
-            
 
             while (text.Substring(index).Contains(";"))
             {
@@ -479,6 +478,74 @@ namespace Tikz_Fix
                 }
 
                 index++;
+            }
+
+            foreach (TikzCode element in tikzCode)
+            {
+                int thick = element.thickness;
+
+                Point p1 = new Point();
+                Point p2 = new Point();
+                p1.X = double.Parse(element.shape.Substring(element.shape.IndexOf("(")+1, element.shape.IndexOf(",")));
+                p1.Y = double.Parse(element.shape.Substring(element.shape.IndexOf(",") + 1, element.shape.Substring(element.shape.IndexOf(",")).IndexOf(")")-1));
+                string sp2 = element.shape.Substring(element.shape.IndexOf(")"));
+                if (sp2.Contains(","))
+                {
+                    p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(",") - 1));
+                    p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(",") + 1, sp2.Substring(sp2.IndexOf(",")).IndexOf(")") - 1));
+                }
+                else if(sp2.Contains("and"))
+                {
+                    p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(" and ") - 1));
+                    p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(" and ") + 5, sp2.Substring(sp2.IndexOf(" and ")+4).IndexOf(")") - 1));
+                }
+                string[] keys = new string[] { "--", "rectangle", "ellipse" };
+                string sKeyResult = keys.FirstOrDefault<string>(s => element.shape.Contains(s));
+                switch (sKeyResult)
+                {
+                    case "--":
+                        Line line = new Line();
+
+                        line.Stroke = strokeColor;
+                        line.StrokeThickness = thick;
+                        line.X1 = p1.X;
+                        line.Y1 = p1.Y;
+                        line.X2 = p2.X;
+                        line.Y2 = p2.Y;
+
+                        lines.Add(line);
+                        Surface.Children.Add(line);
+                        break;
+
+                    case "rectangle":
+                        Rectangle rectangle = new Rectangle();
+                           
+                        rectangle.Stroke = strokeColor;
+                        rectangle.StrokeThickness = thick;
+
+                        rectangle.Width = Math.Abs(p1.X - p2.X);
+                        rectangle.Height = Math.Abs(p1.Y - p2.Y);
+                        rectangle.Margin = new Thickness(Math.Min(p1.X, p2.X), Math.Min(p1.Y, p2.Y), 0, 0);
+
+                        rectangles.Add(rectangle);
+                        Surface.Children.Add(rectangle);
+                        break;
+
+                    case "ellipse":
+                        Ellipse ellipse = new Ellipse();
+
+                        ellipse.Stroke = strokeColor;
+                        ellipse.StrokeThickness = thick;
+
+                        ellipse.Width = p2.X * 2;
+                        ellipse.Height = p2.Y * 2;
+                        ellipse.Margin = new Thickness(p1.X - p2.X, p1.Y - p2.Y, 0, 0);
+
+                        ellipses.Add(ellipse);
+                        Surface.Children.Add(ellipse);
+                        break;
+                }
+
             }
         }
     }
