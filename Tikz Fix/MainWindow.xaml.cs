@@ -432,11 +432,7 @@ namespace Tikz_Fix
 
         private void CodeToImage(string text) 
         {
-            Surface.Children.Clear();
-            lines.Clear();
-            rectangles.Clear();
-            ellipses.Clear();
-            tikzCode.Clear();
+            Clear_Canvas();
 
             TikzCode _tikzCode = new TikzCode();
             _tikzCode.strokeColor = "";
@@ -567,6 +563,20 @@ namespace Tikz_Fix
                 }
 
             }
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            Clear_Canvas();
+        }
+
+        private void Clear_Canvas()
+        {
+            Surface.Children.Clear();
+            lines.Clear();
+            rectangles.Clear();
+            ellipses.Clear();
+            tikzCode.Clear();
         }
     }
 }
