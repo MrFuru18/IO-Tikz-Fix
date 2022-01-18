@@ -334,7 +334,7 @@ namespace Tikz_Fix
             try
             {
                 StreamWriter sw = new StreamWriter("TikzCode.txt");
-                sw.WriteLine("\\begin{tikzpicture}[scale=0.03]");
+                sw.WriteLine("\\begin{tikzpicture}[scale=0.03] ");
                 foreach (var element in tikzCode)
                 {
                     sw.WriteLine("\\definecolor{strokeColor}" + element.strokeColor + " \\definecolor{fillColor}" + element.fillColor + " \\draw [color=strokeColor, fill=fillColor, line width=" + element.thickness + "] " + element.shape + ";");
@@ -404,9 +404,10 @@ namespace Tikz_Fix
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
             string code = OpenFile();
-            MessageBox.Show(code);
-
+            if(code!=null)
+                CodeToImage(code);
         }
+
         public static string OpenFile()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -427,6 +428,58 @@ namespace Tikz_Fix
                 }
             }
             return null;
+        }
+
+        private void CodeToImage(string text) 
+        {
+            Surface.Children.Clear();
+            lines.Clear();
+            rectangles.Clear();
+            ellipses.Clear();
+            tikzCode.Clear();
+
+            TikzCode _tikzCode = new TikzCode();
+            _tikzCode.strokeColor = "";
+            _tikzCode.fillColor = "";
+            _tikzCode.thickness = 0;
+            _tikzCode.shape = "";
+            int index = 0;
+            
+            
+
+            while (text.Substring(index).Contains(";"))
+            {
+                index += text.Substring(index).IndexOf(@"\definecolor{strokeColor}{RGB}") + @"\definecolor{strokeColor}{RGB}".Length;
+                _tikzCode.strokeColor += "{RGB}" + text.Substring(index, text.Substring(index).IndexOf("}")) + "}";
+                index += text.Substring(index).IndexOf("}") + 1;
+
+                index += text.Substring(index).IndexOf(@"\definecolor{fillColor}{RGB}") + @"\definecolor{fillColor}{RGB}".Length;
+                _tikzCode.fillColor += "{RGB}" + text.Substring(index, text.Substring(index).IndexOf("}")) + "}";
+                index += text.Substring(index).IndexOf("}") + 1;
+
+                index += text.Substring(index).IndexOf("line width=") + "line width=".Length;
+                _tikzCode.thickness = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf("]")));
+                index += text.Substring(index).IndexOf("]");
+
+                index += text.Substring(index).IndexOf("] (") + "] (".Length;
+                _tikzCode.shape += "(" + text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
+                index += text.Substring(index).IndexOf(")") + 1;
+                _tikzCode.shape += text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
+                index += text.Substring(index).IndexOf(")") + 1;
+
+
+                if (string.Equals(text[index].ToString(), ";"))
+                {
+                    tikzCode.Add(_tikzCode);
+                    _tikzCode = new TikzCode();
+                    _tikzCode.strokeColor = "";
+                    _tikzCode.fillColor = "";
+                    _tikzCode.thickness = 2;
+                    _tikzCode.shape = "";
+                }
+
+                index++;
+            }
         }
     }
 }
