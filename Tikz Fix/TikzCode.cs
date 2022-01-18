@@ -11,6 +11,7 @@ namespace Tikz_Fix
         public string shape { get; set; }
         public string strokeColor { get; set; }
         public string fillColor { get; set; }
+        public int opacity { get; set; }
         public int thickness { get; set; }
     }
 }

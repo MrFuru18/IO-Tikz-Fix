@@ -294,19 +294,23 @@ namespace Tikz_Fix
 
             _tikzCode.strokeColor = "{RGB}{" + sr + "," + sg + "," + sb + "}";
             _tikzCode.fillColor = "{RGB}{" + fr + "," + fg + "," + fb + "}";
+            if (fillColor == Brushes.Transparent)
+                _tikzCode.opacity = 0;
+            else
+                _tikzCode.opacity = 1;
             _tikzCode.thickness = thickness;
             switch (currShape)
             {
                 case Shapes.Line:
-                    _tikzCode.shape = "(" + start.X + "," + start.Y + ") -- (" + end.X + "," + end.Y + ")";
+                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") -- (" + end.X + ",-" + end.Y + ")";
                     break;
 
                 case Shapes.Rectangle:
-                    _tikzCode.shape = "(" + start.X + "," + start.Y + ") rectangle (" + end.X + "," + end.Y + ")";
+                    _tikzCode.shape = "(" + start.X + ",-" + start.Y + ") rectangle (" + end.X + ",-" + end.Y + ")";
                     break;
 
                 case Shapes.Ellipse:
-                    _tikzCode.shape = "(" + Math.Round((start.X + end.X) / 2) + "," + Math.Round((start.Y + end.Y) / 2) + ") ellipse (" + Math.Round(Math.Abs(start.X - end.X) / 2) + " and " + Math.Round(Math.Abs(start.Y - end.Y) / 2) + ")";
+                    _tikzCode.shape = "(" + Math.Round((start.X + end.X) / 2) + ",-" + Math.Round((start.Y + end.Y) / 2) + ") ellipse (" + Math.Round(Math.Abs(start.X - end.X) / 2) + " and " + Math.Round(Math.Abs(start.Y - end.Y) / 2) + ")";
                     break;
             }
             tikzCode.Add(_tikzCode);
@@ -337,7 +341,7 @@ namespace Tikz_Fix
                 sw.WriteLine("\\begin{tikzpicture}[scale=0.03] ");
                 foreach (var element in tikzCode)
                 {
-                    sw.WriteLine("\\definecolor{strokeColor}" + element.strokeColor + " \\definecolor{fillColor}" + element.fillColor + " \\draw [color=strokeColor, fill=fillColor, line width=" + element.thickness + "] " + element.shape + ";");
+                    sw.WriteLine("\\definecolor{strokeColor}" + element.strokeColor + " \\definecolor{fillColor}" + element.fillColor + " \\draw [color=strokeColor, fill=fillColor, fill opacity=" + element.opacity + ", line width=" + element.thickness + "] " + element.shape + ";");
                 }
                 sw.WriteLine("\\end{tikzpicture}");
                 sw.Close();
@@ -354,7 +358,7 @@ namespace Tikz_Fix
             code += "\\begin{tikzpicture}[scale=0.03]\n";
             foreach (var element in tikzCode)
             {
-                code += "\\definecolor{strokeColor}" + element.strokeColor + " \\definecolor{fillColor}" + element.fillColor + " \\draw [color=strokeColor, fill=fillColor, line width=" + element.thickness + "] " + element.shape + ";\n";
+                code += "\\definecolor{strokeColor}" + element.strokeColor + " \\definecolor{fillColor}" + element.fillColor + " \\draw [color=strokeColor, fill=fillColor, fill opacity=" + element.opacity + ", line width=" + element.thickness + "] " + element.shape + ";\n";
             }
             code += "\\end{tikzpicture}";
             Clipboard.SetText(code);
@@ -437,6 +441,7 @@ namespace Tikz_Fix
             TikzCode _tikzCode = new TikzCode();
             _tikzCode.strokeColor = "";
             _tikzCode.fillColor = "";
+            _tikzCode.opacity = 1;
             _tikzCode.thickness = 0;
             _tikzCode.shape = "";
             int index = 0;
@@ -451,6 +456,10 @@ namespace Tikz_Fix
                 index += text.Substring(index).IndexOf(@"\definecolor{fillColor}{RGB}") + @"\definecolor{fillColor}{RGB}".Length;
                 _tikzCode.fillColor += "{RGB}" + text.Substring(index, text.Substring(index).IndexOf("}")) + "}";
                 index += text.Substring(index).IndexOf("}") + 1;
+
+                index += text.Substring(index).IndexOf("fill opacity=") + "fill opacity=".Length;
+                _tikzCode.opacity = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf(",")));
+                index += text.Substring(index).IndexOf(",");
 
                 index += text.Substring(index).IndexOf("line width=") + "line width=".Length;
                 _tikzCode.thickness = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf("]")));
@@ -469,7 +478,8 @@ namespace Tikz_Fix
                     _tikzCode = new TikzCode();
                     _tikzCode.strokeColor = "";
                     _tikzCode.fillColor = "";
-                    _tikzCode.thickness = 2;
+                    _tikzCode.opacity = 1;
+                    _tikzCode.thickness = 0;
                     _tikzCode.shape = "";
                 }
 
@@ -523,9 +533,9 @@ namespace Tikz_Fix
                         line.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
                         line.StrokeThickness = thick;
                         line.X1 = p1.X;
-                        line.Y1 = p1.Y;
+                        line.Y1 = Math.Abs(p1.Y);
                         line.X2 = p2.X;
-                        line.Y2 = p2.Y;
+                        line.Y2 = Math.Abs(p2.Y);
 
                         lines.Add(line);
                         Surface.Children.Add(line);
@@ -536,11 +546,13 @@ namespace Tikz_Fix
                            
                         rectangle.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
                         rectangle.Fill = (Brush)(new BrushConverter().ConvertFrom(fillHex));
+                        if (element.opacity == 0)
+                            rectangle.Fill = Brushes.Transparent;
                         rectangle.StrokeThickness = thick;
 
                         rectangle.Width = Math.Abs(p1.X - p2.X);
                         rectangle.Height = Math.Abs(p1.Y - p2.Y);
-                        rectangle.Margin = new Thickness(Math.Min(p1.X, p2.X), Math.Min(p1.Y, p2.Y), 0, 0);
+                        rectangle.Margin = new Thickness(Math.Min(p1.X, p2.X), Math.Min(Math.Abs(p1.Y), Math.Abs(p2.Y)), 0, 0);
 
                         rectangles.Add(rectangle);
                         Surface.Children.Add(rectangle);
@@ -551,11 +563,13 @@ namespace Tikz_Fix
 
                         ellipse.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
                         ellipse.Fill = (Brush)(new BrushConverter().ConvertFrom(fillHex));
+                        if (element.opacity == 0)
+                            ellipse.Fill = Brushes.Transparent;
                         ellipse.StrokeThickness = thick;
 
                         ellipse.Width = p2.X * 2;
                         ellipse.Height = p2.Y * 2;
-                        ellipse.Margin = new Thickness(p1.X - p2.X, p1.Y - p2.Y, 0, 0);
+                        ellipse.Margin = new Thickness(p1.X - p2.X, Math.Abs(p1.Y) - Math.Abs(p2.Y), 0, 0);
 
                         ellipses.Add(ellipse);
                         Surface.Children.Add(ellipse);
