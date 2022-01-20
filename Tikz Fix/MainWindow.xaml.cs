@@ -345,6 +345,8 @@ namespace Tikz_Fix
                 }
                 sw.WriteLine("\\end{tikzpicture}");
                 sw.Close();
+
+                MessageBox.Show("Pomyœlnie zapisano");
             }
             catch (Exception ex)
             {
@@ -416,6 +418,7 @@ namespace Tikz_Fix
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.InitialDirectory = @"c:\";
+            openFileDialog.Filter = "Pliki tekstowe(*.txt) | *.txt";
             string path;
             if (openFileDialog.ShowDialog() == true)
             {
@@ -445,46 +448,53 @@ namespace Tikz_Fix
             _tikzCode.thickness = 0;
             _tikzCode.shape = "";
             int index = 0;
-            
 
-            while (text.Substring(index).Contains(";"))
+            try
             {
-                index += text.Substring(index).IndexOf(@"\definecolor{strokeColor}{RGB}") + @"\definecolor{strokeColor}{RGB}".Length;
-                _tikzCode.strokeColor += "{RGB}" + text.Substring(index, text.Substring(index).IndexOf("}")) + "}";
-                index += text.Substring(index).IndexOf("}") + 1;
-
-                index += text.Substring(index).IndexOf(@"\definecolor{fillColor}{RGB}") + @"\definecolor{fillColor}{RGB}".Length;
-                _tikzCode.fillColor += "{RGB}" + text.Substring(index, text.Substring(index).IndexOf("}")) + "}";
-                index += text.Substring(index).IndexOf("}") + 1;
-
-                index += text.Substring(index).IndexOf("fill opacity=") + "fill opacity=".Length;
-                _tikzCode.opacity = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf(",")));
-                index += text.Substring(index).IndexOf(",");
-
-                index += text.Substring(index).IndexOf("line width=") + "line width=".Length;
-                _tikzCode.thickness = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf("]")));
-                index += text.Substring(index).IndexOf("]");
-
-                index += text.Substring(index).IndexOf("(") + "(".Length;
-                _tikzCode.shape += "(" + text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
-                index += text.Substring(index).IndexOf(")") + 1;
-                _tikzCode.shape += text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
-                index += text.Substring(index).IndexOf(")") + 1;
-
-
-                if (string.Equals(text[index].ToString(), ";"))
+                while (text.Substring(index).Contains(";"))
                 {
-                    tikzCode.Add(_tikzCode);
-                    _tikzCode = new TikzCode();
-                    _tikzCode.strokeColor = "";
-                    _tikzCode.fillColor = "";
-                    _tikzCode.opacity = 1;
-                    _tikzCode.thickness = 0;
-                    _tikzCode.shape = "";
-                }
+                    index += text.Substring(index).IndexOf(@"\definecolor{strokeColor}{RGB}") + @"\definecolor{strokeColor}{RGB}".Length;
+                    _tikzCode.strokeColor += "{RGB}" + text.Substring(index, text.Substring(index).IndexOf("}")) + "}";
+                    index += text.Substring(index).IndexOf("}") + 1;
 
-                index++;
+                    index += text.Substring(index).IndexOf(@"\definecolor{fillColor}{RGB}") + @"\definecolor{fillColor}{RGB}".Length;
+                    _tikzCode.fillColor += "{RGB}" + text.Substring(index, text.Substring(index).IndexOf("}")) + "}";
+                    index += text.Substring(index).IndexOf("}") + 1;
+
+                    index += text.Substring(index).IndexOf("fill opacity=") + "fill opacity=".Length;
+                    _tikzCode.opacity = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf(",")));
+                    index += text.Substring(index).IndexOf(",");
+
+                    index += text.Substring(index).IndexOf("line width=") + "line width=".Length;
+                    _tikzCode.thickness = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf("]")));
+                    index += text.Substring(index).IndexOf("]");
+
+                    index += text.Substring(index).IndexOf("(") + "(".Length;
+                    _tikzCode.shape += "(" + text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
+                    index += text.Substring(index).IndexOf(")") + 1;
+                    _tikzCode.shape += text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
+                    index += text.Substring(index).IndexOf(")") + 1;
+
+
+                    if (string.Equals(text[index].ToString(), ";"))
+                    {
+                        tikzCode.Add(_tikzCode);
+                        _tikzCode = new TikzCode();
+                        _tikzCode.strokeColor = "";
+                        _tikzCode.fillColor = "";
+                        _tikzCode.opacity = 1;
+                        _tikzCode.thickness = 0;
+                        _tikzCode.shape = "";
+                    }
+
+                    index++;
+                }
             }
+            catch
+            {
+                MessageBox.Show("B³¹d pliku");
+            }
+            
 
             foreach (TikzCode element in tikzCode)
             {
