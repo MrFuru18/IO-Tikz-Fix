@@ -6,8 +6,13 @@
         xmlns:local="clr-namespace:Tikz_Fix"
         mc:Ignorable="d"
         Title="Tikz Fix" Height="600" Width="1000"
-        ResizeMode="NoResize">
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        >
     <Window.Resources>
+        <ControlTemplate x:Key="ComboBoxTextBox" TargetType="TextBox">
+            <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}" />
+        </ControlTemplate>
         <Style x:Key="comboBox" TargetType="ComboBox">
             <Setter Property="Width" Value="45"/>
             <Setter Property="Height" Value="30"/>
@@ -37,25 +42,31 @@
                 Background="#343A40"/>
         <StackPanel Grid.Column="0"
                     Grid.Row ="0" 
-                    Orientation="Horizontal">
+                    Orientation="Vertical">
             <RadioButton Name="LineButton" 
                          GroupName="Shapes" 
                          Content="Line" 
                          IsChecked="True" 
-                         Click="LineButton_Click"/>
+                         Click="LineButton_Click"
+                         Foreground="White"
+                         Margin="20,5,5,5"/>
             <RadioButton Name="RectangleButton" 
                          GroupName="Shapes" 
                          Content="Rectangle" 
-                         Click="RectangleButton_Click"/>
-            <Button Name="EllipseButton"  
-                    Content="Ellipse" 
-                    Click="EllipseButton_Click">
-                
-            </Button>
+                         Click="RectangleButton_Click"
+                         Foreground="White"
+                         Margin="20,5,5,5"/>
+            <RadioButton Name="EllipseButton"  
+                         Content="Ellipse" 
+                         GroupName="Shapes"
+                         Click="EllipseButton_Click"
+                         Foreground="White"
+                         Margin="20,5,5,5"/>
         </StackPanel>
         <StackPanel Grid.Column="1"
                     Grid.Row ="0" 
-                    Orientation="Horizontal">
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center">
             <ComboBox Name="StrokeColor" SelectionChanged="StrokeColor_SelectionChanged"
                       IsEditable="False" IsReadOnly="True" ToolTip="Brush Color"
                       Style="{StaticResource comboBox}">
@@ -67,11 +78,13 @@
                         </StackPanel>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
+               
             </ComboBox>
             <ComboBox Name="FillColor" SelectionChanged="FillColor_SelectionChanged"
                       IsEditable="False" IsReadOnly="True" ToolTip="Fill Color"
                       Style="{StaticResource comboBox}">
                 <ComboBox.ItemTemplate>
+                    
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
                             <Rectangle Fill="{Binding Name}" Width="16" Height="16" Margin="0,2,5,2" />
@@ -106,7 +119,8 @@
                       Height="420"
                       Background="#212529" 
                       FontFamily="fonts/Courier" 
-                      Foreground="Wheat">
+                      Foreground="Wheat" 
+                      >
                 <ListView.ItemTemplate >
                     <DataTemplate>
                         <TextBlock Text="{Binding shape}" FontFamily="fonts/Courier" FontStretch="SemiCondensed"/>
@@ -195,12 +209,12 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
-                <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Save" Click="SaveButton_Click">
+                <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Save" Click="SaveButton_Click" FontFamily="fonts/#fontawesome-webfont">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Background" Value="#ADB5BD"/>
                             <Setter Property="Cursor" Value="Hand"/>
-                            <Setter Property="FontFamily" Value="fonts/#Courier"/>
+                            <Setter Property="FontFamily" Value="fonts/#fontawesome-webfont"/>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter Property="Background" Value="#6C757D"/>
