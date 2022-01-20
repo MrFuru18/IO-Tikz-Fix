@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tikz_Fix"
         mc:Ignorable="d"
-        Title="Tikz Fix" Height="600" Width="1000"
+        Title="Tikz Fix" Height="600" Width="900"
         WindowStyle="SingleBorderWindow"
         ResizeMode="NoResize"
         >
@@ -144,7 +144,7 @@
 
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border Width="100"
+                            <Border Width="90"
                                     CornerRadius="12"
                                     Background="{TemplateBinding Background}">
                                 <ContentPresenter VerticalAlignment="Center"
@@ -170,7 +170,7 @@
 
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border Width="100"
+                            <Border Width="90"
                                     Height="22"
                                     CornerRadius="12"
                                     Background="{TemplateBinding Background}">
@@ -198,7 +198,7 @@
 
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border Width="100"
+                            <Border Width="90"
                                     Height="22"
                                     CornerRadius="12"
                                     Background="{TemplateBinding Background}">
@@ -225,7 +225,7 @@
 
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border Width="100"
+                            <Border Width="90"
                                     Height="22"
                                     CornerRadius="12"
                                     Background="{TemplateBinding Background}">
@@ -251,7 +251,7 @@
 
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border Width="100"
+                            <Border Width="90"
                                     CornerRadius="12"
                                     Background="{TemplateBinding Background}">
                                 <ContentPresenter VerticalAlignment="Center"
