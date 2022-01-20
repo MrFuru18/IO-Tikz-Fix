@@ -5,8 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tikz_Fix"
         mc:Ignorable="d"
-        Title="Tikz Fix" Height="600" Width="1000">
+        Title="Tikz Fix" Height="600" Width="1000"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        >
     <Window.Resources>
+        <ControlTemplate x:Key="ComboBoxTextBox" TargetType="TextBox">
+            <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}" />
+        </ControlTemplate>
         <Style x:Key="comboBox" TargetType="ComboBox">
             <Setter Property="Width" Value="45"/>
             <Setter Property="Height" Value="30"/>
@@ -26,26 +32,41 @@
         <Border Grid.Column="0"
                 Grid.Row="0"
                 Grid.ColumnSpan="2"
-                BorderBrush="Black" 
-                BorderThickness="1,1,1,1" Background="Transparent"/>
+                Background="#343A40"/>
         <Border Grid.Column="0"
                 Grid.Row="1"
-                BorderBrush="Black" 
-                BorderThickness="1,0,1,1" Background="Transparent"/>
+                BorderBrush="Black"
+                BorderThickness="2,2,2,2" Background="Transparent"/>
         <Border Grid.Column="1"
                 Grid.Row="1"
-                BorderBrush="Black" 
-                BorderThickness="0,0,1,1" Background="Transparent"/>
+                Background="#343A40"/>
         <StackPanel Grid.Column="0"
                     Grid.Row ="0" 
-                    Orientation="Horizontal">
-            <RadioButton Name="LineButton" GroupName="Shapes" Content="Line" IsChecked="True" Click="LineButton_Click"/>
-            <RadioButton Name="RectangleButton" GroupName="Shapes" Content="Rectangle" Click="RectangleButton_Click"/>
-            <RadioButton Name="EllipseButton" GroupName="Shapes" Content="Ellipse" Click="EllipseButton_Click"/>
+                    Orientation="Vertical">
+            <RadioButton Name="LineButton" 
+                         GroupName="Shapes" 
+                         Content="Line" 
+                         IsChecked="True" 
+                         Click="LineButton_Click"
+                         Foreground="White"
+                         Margin="20,5,5,5"/>
+            <RadioButton Name="RectangleButton" 
+                         GroupName="Shapes" 
+                         Content="Rectangle" 
+                         Click="RectangleButton_Click"
+                         Foreground="White"
+                         Margin="20,5,5,5"/>
+            <RadioButton Name="EllipseButton"  
+                         Content="Ellipse" 
+                         GroupName="Shapes"
+                         Click="EllipseButton_Click"
+                         Foreground="White"
+                         Margin="20,5,5,5"/>
         </StackPanel>
         <StackPanel Grid.Column="1"
                     Grid.Row ="0" 
-                    Orientation="Horizontal">
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center">
             <ComboBox Name="StrokeColor" SelectionChanged="StrokeColor_SelectionChanged"
                       IsEditable="False" IsReadOnly="True" ToolTip="Brush Color"
                       Style="{StaticResource comboBox}">
@@ -57,11 +78,13 @@
                         </StackPanel>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
+               
             </ComboBox>
             <ComboBox Name="FillColor" SelectionChanged="FillColor_SelectionChanged"
                       IsEditable="False" IsReadOnly="True" ToolTip="Fill Color"
                       Style="{StaticResource comboBox}">
                 <ComboBox.ItemTemplate>
+                    
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
                             <Rectangle Fill="{Binding Name}" Width="16" Height="16" Margin="0,2,5,2" />
@@ -79,29 +102,165 @@
             </ComboBox>
         </StackPanel>
 
-        <Canvas x:Name="Surface" Grid.Row="1" Grid.Column="0"  Background="Transparent" 
+        <Canvas x:Name="Surface" Grid.Row="1" Grid.Column="0"  
+                Background="Transparent" 
                 MouseLeftButtonDown="Surface_MouseLeftButtonDown"
                 MouseLeftButtonUp="Surface_MouseLeftButtonUp"
                 MouseMove="Surface_MouseMove">
         </Canvas>
         <TextBlock x:Name="Coordinates" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
         
-        <StackPanel  Grid.Row="1" Grid.Column="1" Orientation="Vertical">
-            <ListView x:Name="TikzCode" Height="420">
-                <ListView.ItemTemplate>
+        <StackPanel  
+            Grid.Row="1" 
+            Grid.Column="1" 
+            Orientation="Vertical"
+            >
+            <ListView x:Name="TikzCode" 
+                      Height="420"
+                      Background="#212529" 
+                      FontFamily="fonts/Courier" 
+                      Foreground="Wheat" 
+                      >
+                <ListView.ItemTemplate >
                     <DataTemplate>
-                        <TextBlock Text="{Binding shape}"/>
+                        <TextBlock Text="{Binding shape}" FontFamily="fonts/Courier" FontStretch="SemiCondensed"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
             <StackPanel Orientation="Horizontal" Margin="0,5,0,0" HorizontalAlignment="Center" >
-                <Button x:Name="DeleteButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Delete" Click="DeleteButton_Click"/>
-                <Button x:Name="ClearButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Clear" Click="ClearButton_Click"/>
+
+                <Button x:Name="DeleteButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Delete" Click="DeleteButton_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#ADB5BD"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#6C757D"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Width="100"
+                                    CornerRadius="12"
+                                    Background="{TemplateBinding Background}">
+                                <ContentPresenter VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"/>
+
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                    
+                </Button>
+                <Button x:Name="ClearButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Clear" Click="ClearButton_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#ADB5BD"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#6C757D"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Width="100"
+                                    Height="22"
+                                    CornerRadius="12"
+                                    Background="{TemplateBinding Background}">
+                                <ContentPresenter VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"/>
+
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,5,0,0" HorizontalAlignment="Center" >
-                <Button x:Name="CopyButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Copy" Click="CopyButton_Click"/>
-                <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Save" Click="SaveButton_Click"/>
-                <Button x:Name="LoadButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Load" Click="LoadButton_Click"/>
+                <Button x:Name="CopyButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Copy" Click="CopyButton_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#ADB5BD"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#6C757D"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Width="100"
+                                    Height="22"
+                                    CornerRadius="12"
+                                    Background="{TemplateBinding Background}">
+                                <ContentPresenter VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"/>
+
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button x:Name="SaveButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Save" Click="SaveButton_Click" FontFamily="fonts/#fontawesome-webfont">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#ADB5BD"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="FontFamily" Value="fonts/#fontawesome-webfont"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#6C757D"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Width="100"
+                                    Height="22"
+                                    CornerRadius="12"
+                                    Background="{TemplateBinding Background}">
+                                <ContentPresenter VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"/>
+
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button x:Name="LoadButton" Grid.Row="1" Grid.Column="1" Margin="5,0,5,0" Content="Load" Click="LoadButton_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#ADB5BD"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#6C757D"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Width="100"
+                                    CornerRadius="12"
+                                    Background="{TemplateBinding Background}">
+                                <ContentPresenter VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"/>
+
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
             </StackPanel>
         </StackPanel>
         
