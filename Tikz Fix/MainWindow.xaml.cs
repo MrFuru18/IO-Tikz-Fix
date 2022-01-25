@@ -15,7 +15,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
-using Microsoft.Win32;
 
 namespace Tikz_Fix
 {
@@ -196,7 +195,6 @@ namespace Tikz_Fix
         }
 
 
-
         private void drawRectangle(MouseButtonEventArgs e)
         {
             Rectangle newRectangle = new Rectangle()
@@ -276,8 +274,88 @@ namespace Tikz_Fix
             Surface.Children.Add(newEllipse);
         }
 
-        #endregion
+        private void DrawElements()
+        {
 
+            foreach (TikzCode element in tikzCode)
+            {
+                int thick = element.thickness;
+
+                string strokeHex = StringOperations.StrokeRGBToHex(element);
+                string fillHex = StringOperations.FillRGBToHex(element);
+
+                Point p1 = new Point();
+                Point p2 = new Point();
+                p1.X = double.Parse(element.shape.Substring(element.shape.IndexOf("(") + 1, element.shape.IndexOf(",")));
+                p1.Y = double.Parse(element.shape.Substring(element.shape.IndexOf(",") + 1, element.shape.Substring(element.shape.IndexOf(",")).IndexOf(")") - 1));
+                string sp2 = element.shape.Substring(element.shape.IndexOf(")"));
+                if (sp2.Contains(","))
+                {
+                    p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(",") - 1));
+                    p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(",") + 1, sp2.Substring(sp2.IndexOf(",")).IndexOf(")") - 1));
+                }
+                else if (sp2.Contains("and"))
+                {
+                    p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(" and ") - 1));
+                    p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(" and ") + 5, sp2.Substring(sp2.IndexOf(" and ") + 4).IndexOf(")") - 1));
+                }
+                string[] keys = new string[] { "--", "rectangle", "ellipse" };
+                string sKeyResult = keys.FirstOrDefault<string>(s => element.shape.Contains(s));
+                switch (sKeyResult)
+                {
+                    case "--":
+                        Line line = new Line();
+
+                        line.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
+                        line.StrokeThickness = thick;
+                        line.X1 = p1.X;
+                        line.Y1 = Math.Abs(p1.Y);
+                        line.X2 = p2.X;
+                        line.Y2 = Math.Abs(p2.Y);
+
+                        lines.Add(line);
+                        Surface.Children.Add(line);
+                        break;
+
+                    case "rectangle":
+                        Rectangle rectangle = new Rectangle();
+
+                        rectangle.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
+                        rectangle.Fill = (Brush)(new BrushConverter().ConvertFrom(fillHex));
+                        if (element.opacity == 0)
+                            rectangle.Fill = Brushes.Transparent;
+                        rectangle.StrokeThickness = thick;
+
+                        rectangle.Width = Math.Abs(p1.X - p2.X);
+                        rectangle.Height = Math.Abs(p1.Y - p2.Y);
+                        rectangle.Margin = new Thickness(Math.Min(p1.X, p2.X), Math.Min(Math.Abs(p1.Y), Math.Abs(p2.Y)), 0, 0);
+
+                        rectangles.Add(rectangle);
+                        Surface.Children.Add(rectangle);
+                        break;
+
+                    case "ellipse":
+                        Ellipse ellipse = new Ellipse();
+
+                        ellipse.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
+                        ellipse.Fill = (Brush)(new BrushConverter().ConvertFrom(fillHex));
+                        if (element.opacity == 0)
+                            ellipse.Fill = Brushes.Transparent;
+                        ellipse.StrokeThickness = thick;
+
+                        ellipse.Width = p2.X * 2;
+                        ellipse.Height = p2.Y * 2;
+                        ellipse.Margin = new Thickness(p1.X - p2.X, Math.Abs(p1.Y) - Math.Abs(p2.Y), 0, 0);
+
+                        ellipses.Add(ellipse);
+                        Surface.Children.Add(ellipse);
+                        break;
+                }
+            }
+
+                
+        }
+        #endregion
 
         private void updateTikzCode()
         {
@@ -335,35 +413,12 @@ namespace Tikz_Fix
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                StreamWriter sw = new StreamWriter("TikzCode.txt");
-                sw.WriteLine("\\begin{tikzpicture}[scale=0.03] ");
-                foreach (var element in tikzCode)
-                {
-                    sw.WriteLine("\\definecolor{strokeColor}" + element.strokeColor + " \\definecolor{fillColor}" + element.fillColor + " \\draw [color=strokeColor, fill=fillColor, fill opacity=" + element.opacity + ", line width=" + element.thickness + "] " + element.shape + ";");
-                }
-                sw.WriteLine("\\end{tikzpicture}");
-                sw.Close();
-
-                MessageBox.Show("Pomyœlnie zapisano");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Exception: " + ex.Message);
-            }
+            Files.WriteToFile(tikzCode);
         }
 
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
-            string code = "";
-            code += "\\begin{tikzpicture}[scale=0.03]\n";
-            foreach (var element in tikzCode)
-            {
-                code += "\\definecolor{strokeColor}" + element.strokeColor + " \\definecolor{fillColor}" + element.fillColor + " \\draw [color=strokeColor, fill=fillColor, fill opacity=" + element.opacity + ", line width=" + element.thickness + "] " + element.shape + ";\n";
-            }
-            code += "\\end{tikzpicture}";
-            Clipboard.SetText(code);
+            Clipboard.SetText(StringOperations.GenerateOutput(tikzCode));
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -409,183 +464,23 @@ namespace Tikz_Fix
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
-            string code = OpenFile();
+            string code = Files.OpenFile();
             if(code!=null)
                 CodeToImage(code);
-        }
-
-        public static string OpenFile()
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = @"c:\";
-            openFileDialog.Filter = "Pliki tekstowe(*.txt) | *.txt";
-            string path;
-            if (openFileDialog.ShowDialog() == true)
-            {
-                Uri fileUri = new Uri(openFileDialog.FileName);
-                path = openFileDialog.FileName.ToString();
-                try
-                {
-                    string readText = File.ReadAllText(path);
-                    return readText;
-                }
-                catch
-                {
-                    MessageBox.Show("Wybrano z³y plik!", "Uwaga");
-                }
-            }
-            return null;
         }
 
         private void CodeToImage(string text) 
         {
             Clear_Canvas();
-
-            TikzCode _tikzCode = new TikzCode();
-            _tikzCode.strokeColor = "";
-            _tikzCode.fillColor = "";
-            _tikzCode.opacity = 1;
-            _tikzCode.thickness = 0;
-            _tikzCode.shape = "";
-            int index = 0;
+            DivideElements(text);
 
             try
             {
-                while (text.Substring(index).Contains(";"))
-                {
-                    index += text.Substring(index).IndexOf(@"\definecolor{strokeColor}{RGB}") + @"\definecolor{strokeColor}{RGB}".Length;
-                    _tikzCode.strokeColor += "{RGB}" + text.Substring(index, text.Substring(index).IndexOf("}")) + "}";
-                    index += text.Substring(index).IndexOf("}") + 1;
-
-                    index += text.Substring(index).IndexOf(@"\definecolor{fillColor}{RGB}") + @"\definecolor{fillColor}{RGB}".Length;
-                    _tikzCode.fillColor += "{RGB}" + text.Substring(index, text.Substring(index).IndexOf("}")) + "}";
-                    index += text.Substring(index).IndexOf("}") + 1;
-
-                    index += text.Substring(index).IndexOf("fill opacity=") + "fill opacity=".Length;
-                    _tikzCode.opacity = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf(",")));
-                    index += text.Substring(index).IndexOf(",");
-
-                    index += text.Substring(index).IndexOf("line width=") + "line width=".Length;
-                    _tikzCode.thickness = Int32.Parse(text.Substring(index, text.Substring(index).IndexOf("]")));
-                    index += text.Substring(index).IndexOf("]");
-
-                    index += text.Substring(index).IndexOf("(") + "(".Length;
-                    _tikzCode.shape += "(" + text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
-                    index += text.Substring(index).IndexOf(")") + 1;
-                    _tikzCode.shape += text.Substring(index, text.Substring(index).IndexOf(")")) + ")";
-                    index += text.Substring(index).IndexOf(")") + 1;
-
-
-                    if (string.Equals(text[index].ToString(), ";"))
-                    {
-                        tikzCode.Add(_tikzCode);
-                        _tikzCode = new TikzCode();
-                        _tikzCode.strokeColor = "";
-                        _tikzCode.fillColor = "";
-                        _tikzCode.opacity = 1;
-                        _tikzCode.thickness = 0;
-                        _tikzCode.shape = "";
-                    }
-
-                    index++;
-                }
+                DrawElements();
             }
             catch
             {
                 MessageBox.Show("B³¹d pliku");
-            }
-            
-
-            foreach (TikzCode element in tikzCode)
-            {
-                int thick = element.thickness;
-
-                byte[] sRGB = { 0, 0, 0 };                
-                sRGB[0] = byte.Parse(element.strokeColor.Substring(element.strokeColor.IndexOf("}") + 2, Math.Abs(element.strokeColor.IndexOf("}") + 2 - element.strokeColor.IndexOf(","))));
-                string scolor2 = element.strokeColor.Substring(element.strokeColor.IndexOf(",")+1);
-                sRGB[1] = byte.Parse(scolor2.Substring(0, scolor2.IndexOf(",")));
-                string scolor3 = scolor2.Substring(scolor2.IndexOf(",")+1);
-                sRGB[2] = byte.Parse(scolor3.Substring(0, scolor3.IndexOf("}")));
-                Color myColor = Color.FromRgb(sRGB[0], sRGB[1], sRGB[2]);
-                string strokeHex = "#FF" + myColor.R.ToString("X2") + myColor.G.ToString("X2") + myColor.B.ToString("X2");
-
-                byte[] fRGB = { 0, 0, 0 };
-                fRGB[0] = byte.Parse(element.fillColor.Substring(element.strokeColor.IndexOf("}") + 2, Math.Abs(element.fillColor.IndexOf("}") + 2 - element.fillColor.IndexOf(","))));
-                string fcolor2 = element.fillColor.Substring(element.fillColor.IndexOf(",") + 1);
-                fRGB[1] = byte.Parse(fcolor2.Substring(0, fcolor2.IndexOf(",")));
-                string fcolor3 = fcolor2.Substring(fcolor2.IndexOf(",") + 1);
-                fRGB[2] = byte.Parse(fcolor3.Substring(0, fcolor3.IndexOf("}")));
-                myColor = Color.FromRgb(fRGB[0], fRGB[1], fRGB[2]);
-                string fillHex = "#FF" + myColor.R.ToString("X2") + myColor.G.ToString("X2") + myColor.B.ToString("X2");
-
-                Point p1 = new Point();
-                Point p2 = new Point();
-                p1.X = double.Parse(element.shape.Substring(element.shape.IndexOf("(")+1, element.shape.IndexOf(",")));
-                p1.Y = double.Parse(element.shape.Substring(element.shape.IndexOf(",") + 1, element.shape.Substring(element.shape.IndexOf(",")).IndexOf(")")-1));
-                string sp2 = element.shape.Substring(element.shape.IndexOf(")"));
-                if (sp2.Contains(","))
-                {
-                    p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(",") - 1));
-                    p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(",") + 1, sp2.Substring(sp2.IndexOf(",")).IndexOf(")") - 1));
-                }
-                else if(sp2.Contains("and"))
-                {
-                    p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(" and ") - 1));
-                    p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(" and ") + 5, sp2.Substring(sp2.IndexOf(" and ")+4).IndexOf(")") - 1));
-                }
-                string[] keys = new string[] { "--", "rectangle", "ellipse" };
-                string sKeyResult = keys.FirstOrDefault<string>(s => element.shape.Contains(s));
-                switch (sKeyResult)
-                {
-                    case "--":
-                        Line line = new Line();
-
-                        line.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
-                        line.StrokeThickness = thick;
-                        line.X1 = p1.X;
-                        line.Y1 = Math.Abs(p1.Y);
-                        line.X2 = p2.X;
-                        line.Y2 = Math.Abs(p2.Y);
-
-                        lines.Add(line);
-                        Surface.Children.Add(line);
-                        break;
-
-                    case "rectangle":
-                        Rectangle rectangle = new Rectangle();
-                           
-                        rectangle.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
-                        rectangle.Fill = (Brush)(new BrushConverter().ConvertFrom(fillHex));
-                        if (element.opacity == 0)
-                            rectangle.Fill = Brushes.Transparent;
-                        rectangle.StrokeThickness = thick;
-
-                        rectangle.Width = Math.Abs(p1.X - p2.X);
-                        rectangle.Height = Math.Abs(p1.Y - p2.Y);
-                        rectangle.Margin = new Thickness(Math.Min(p1.X, p2.X), Math.Min(Math.Abs(p1.Y), Math.Abs(p2.Y)), 0, 0);
-
-                        rectangles.Add(rectangle);
-                        Surface.Children.Add(rectangle);
-                        break;
-
-                    case "ellipse":
-                        Ellipse ellipse = new Ellipse();
-
-                        ellipse.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
-                        ellipse.Fill = (Brush)(new BrushConverter().ConvertFrom(fillHex));
-                        if (element.opacity == 0)
-                            ellipse.Fill = Brushes.Transparent;
-                        ellipse.StrokeThickness = thick;
-
-                        ellipse.Width = p2.X * 2;
-                        ellipse.Height = p2.Y * 2;
-                        ellipse.Margin = new Thickness(p1.X - p2.X, Math.Abs(p1.Y) - Math.Abs(p2.Y), 0, 0);
-
-                        ellipses.Add(ellipse);
-                        Surface.Children.Add(ellipse);
-                        break;
-                }
-
             }
         }
 
@@ -601,6 +496,21 @@ namespace Tikz_Fix
             rectangles.Clear();
             ellipses.Clear();
             tikzCode.Clear();
+        }
+
+        private void DivideElements(string text)
+        {
+            try
+            {
+                foreach (var element in StringOperations.DivideElements(text))
+                {
+                    tikzCode.Add(element);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("B³¹d pliku");
+            }
         }
     }
 }
