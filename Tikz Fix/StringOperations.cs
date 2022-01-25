@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Tikz_Fix
@@ -103,6 +104,29 @@ namespace Tikz_Fix
             string fillHex = "#FF" + myColor.R.ToString("X2") + myColor.G.ToString("X2") + myColor.B.ToString("X2");
 
             return fillHex;
+        }
+
+        public static Point[] GetCoordinates(TikzCode element) 
+        {
+            Point p1 = new Point();
+            Point p2 = new Point();
+
+            p1.X = double.Parse(element.shape.Substring(element.shape.IndexOf("(") + 1, element.shape.IndexOf(",")));
+            p1.Y = double.Parse(element.shape.Substring(element.shape.IndexOf(",") + 1, element.shape.Substring(element.shape.IndexOf(",")).IndexOf(")") - 1));
+            string sp2 = element.shape.Substring(element.shape.IndexOf(")"));
+            if (sp2.Contains(","))
+            {
+                p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(",") - 1));
+                p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(",") + 1, sp2.Substring(sp2.IndexOf(",")).IndexOf(")") - 1));
+            }
+            else if (sp2.Contains("and"))
+            {
+                p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(" and ") - 1));
+                p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(" and ") + 5, sp2.Substring(sp2.IndexOf(" and ") + 4).IndexOf(")") - 1));
+            }
+
+            Point[] coordinates = { p1, p2 };
+            return coordinates;
         }
     }
 }

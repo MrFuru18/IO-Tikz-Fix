@@ -108,7 +108,7 @@
                 MouseLeftButtonUp="Surface_MouseLeftButtonUp"
                 MouseMove="Surface_MouseMove">
         </Canvas>
-        <TextBlock x:Name="Coordinates" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+        <TextBlock x:Name="Coordinates" Grid.Row="1" Grid.Column="0" Margin="0,0,3,0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
         
         <StackPanel  
             Grid.Row="1" 

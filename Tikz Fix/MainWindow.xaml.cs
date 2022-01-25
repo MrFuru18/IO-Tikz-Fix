@@ -284,21 +284,8 @@ namespace Tikz_Fix
                 string strokeHex = StringOperations.StrokeRGBToHex(element);
                 string fillHex = StringOperations.FillRGBToHex(element);
 
-                Point p1 = new Point();
-                Point p2 = new Point();
-                p1.X = double.Parse(element.shape.Substring(element.shape.IndexOf("(") + 1, element.shape.IndexOf(",")));
-                p1.Y = double.Parse(element.shape.Substring(element.shape.IndexOf(",") + 1, element.shape.Substring(element.shape.IndexOf(",")).IndexOf(")") - 1));
-                string sp2 = element.shape.Substring(element.shape.IndexOf(")"));
-                if (sp2.Contains(","))
-                {
-                    p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(",") - 1));
-                    p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(",") + 1, sp2.Substring(sp2.IndexOf(",")).IndexOf(")") - 1));
-                }
-                else if (sp2.Contains("and"))
-                {
-                    p2.X = double.Parse(sp2.Substring(sp2.IndexOf("(") + 1, sp2.Substring(sp2.IndexOf("(")).IndexOf(" and ") - 1));
-                    p2.Y = double.Parse(sp2.Substring(sp2.IndexOf(" and ") + 5, sp2.Substring(sp2.IndexOf(" and ") + 4).IndexOf(")") - 1));
-                }
+                Point[] coordinates = StringOperations.GetCoordinates(element);
+
                 string[] keys = new string[] { "--", "rectangle", "ellipse" };
                 string sKeyResult = keys.FirstOrDefault<string>(s => element.shape.Contains(s));
                 switch (sKeyResult)
@@ -308,10 +295,10 @@ namespace Tikz_Fix
 
                         line.Stroke = (Brush)(new BrushConverter().ConvertFrom(strokeHex));
                         line.StrokeThickness = thick;
-                        line.X1 = p1.X;
-                        line.Y1 = Math.Abs(p1.Y);
-                        line.X2 = p2.X;
-                        line.Y2 = Math.Abs(p2.Y);
+                        line.X1 = coordinates[0].X;
+                        line.Y1 = Math.Abs(coordinates[0].Y);
+                        line.X2 = coordinates[1].X;
+                        line.Y2 = Math.Abs(coordinates[1].Y);
 
                         lines.Add(line);
                         Surface.Children.Add(line);
@@ -326,9 +313,9 @@ namespace Tikz_Fix
                             rectangle.Fill = Brushes.Transparent;
                         rectangle.StrokeThickness = thick;
 
-                        rectangle.Width = Math.Abs(p1.X - p2.X);
-                        rectangle.Height = Math.Abs(p1.Y - p2.Y);
-                        rectangle.Margin = new Thickness(Math.Min(p1.X, p2.X), Math.Min(Math.Abs(p1.Y), Math.Abs(p2.Y)), 0, 0);
+                        rectangle.Width = Math.Abs(coordinates[0].X - coordinates[1].X);
+                        rectangle.Height = Math.Abs(coordinates[0].Y - coordinates[1].Y);
+                        rectangle.Margin = new Thickness(Math.Min(coordinates[0].X, coordinates[1].X), Math.Min(Math.Abs(coordinates[0].Y), Math.Abs(coordinates[1].Y)), 0, 0);
 
                         rectangles.Add(rectangle);
                         Surface.Children.Add(rectangle);
@@ -343,9 +330,9 @@ namespace Tikz_Fix
                             ellipse.Fill = Brushes.Transparent;
                         ellipse.StrokeThickness = thick;
 
-                        ellipse.Width = p2.X * 2;
-                        ellipse.Height = p2.Y * 2;
-                        ellipse.Margin = new Thickness(p1.X - p2.X, Math.Abs(p1.Y) - Math.Abs(p2.Y), 0, 0);
+                        ellipse.Width = coordinates[1].X * 2;
+                        ellipse.Height = coordinates[1].Y * 2;
+                        ellipse.Margin = new Thickness(coordinates[0].X - coordinates[1].X, Math.Abs(coordinates[0].Y) - Math.Abs(coordinates[1].Y), 0, 0);
 
                         ellipses.Add(ellipse);
                         Surface.Children.Add(ellipse);
